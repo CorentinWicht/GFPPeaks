@@ -257,7 +257,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
                     if j==1
                         PosRectinTF = [TEMPCompinTF(1) Yl(1) TEMPCompinTF(2)-TEMPCompinTF(1) (Yl(2)-Yl(1))*0.8]; %  
                     else
-                        PosRectinTF = [TEMPCompinTF(1) Yl(1) TEMPCompinTF(2)-TEMPCompinTF(1) Yl(2)*0.8]; 
+                        PosRectinTF = [TEMPCompinTF(1) Yl(1) TEMPCompinTF(2)-TEMPCompinTF(1) Yl(2)*0.1]; 
                     end
                     rectangle('Position',PosRectinTF,'FaceColor',[0 0 1 0.2],'EdgeColor',[0 0 1 0.2]);
                 end
@@ -336,10 +336,11 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         p=uitable('Parent', f,'Data',to_display,'ColumnEdit',[false true],'ColumnName',...
             {'Files', 'Peak GFP'},'ColumnWidth', {180,60},...
         'CellEditCallBack','MaxGFPList = get(gco,''Data'');');
-        uicontrol('Style', 'text', 'Position', [20 325 200 50], 'String',...
-                {'Individual GFP peaks (in TF !!)',...
+        uicontrol('Style', 'text', 'Position', [20 325 250 50], 'String',...
+                {sprintf('Individual GFP peaks (in TF !) for component : %s',CompN{1}),...
                 'Close the box once you are settled with all files.'});
-        % Reminder
+        
+            % Reminder
         clc; % Clear command window
         fprintf('<strong> Current component of interest: %s [%d - %d TF] </strong> \n',...
             CompN{1},TEMPCompinTF(1),TEMPCompinTF(2))
@@ -395,12 +396,12 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         title(sprintf('%s',strrep(Fields{m},'_','-'))) 
         set(gca,'XTick',Ticks,'XTickLabel',num2cell(XTStr));
         
-        % Vertical line
+        % Vertical line (Peak)
         PosinMS = round(MaxGFP.(Fields{m}).Pos/SamplingRate*1000);
         LabelValue = [num2str(PosinMS + Epoch(1)) 'ms ' '[' num2str(MaxGFP.(Fields{m}).Value) ']'];
         xline(MaxGFP.(Fields{m}).Pos,'-',LabelValue,'Color',[1 0 0],'LabelVerticalAlignment','bottom');
         
-        % Patches
+        % Patches (+- 1SD around the peak)
 %         PosRectinMS = [TEMPComp(1) 0 TEMPComp(2)-TEMPComp(1) max(MeanGFP.(Fields{m}))];
         PosRectinTF = [PosinMS-SDPeakGFP.(Fields{m}) 0 2*SDPeakGFP.(Fields{m}) max(MeanPeakGFP.(Fields{m}))];
         rectangle('Position',PosRectinTF,'FaceColor',[1 0 0 0.2],'EdgeColor',[1 0 0 0.2]);

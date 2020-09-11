@@ -198,7 +198,7 @@ fprintf(fid,'%s\r\n',['Number of time frames (TF) = ' num2str(numtimeframes)]);
 fprintf(fid,'%s\r\n',['Number of channels = ' num2str(numchannels)]);
 fprintf(fid,'%s\r\n',['Peak identification method used : ' PromptIndivGFP]);
         
-for n=1:size(CompList,1) % For each Comp
+for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     
     % Remove empty lines and store data for the current component
     EmptIdx = ~cellfun(@(x) isempty(x),CompList(n,:));

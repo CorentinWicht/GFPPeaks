@@ -1,0 +1,6 @@
+---- EEG PARAMETERS SUMMARY ----
+Epoch (in ms) = -100  700
+Sampling rate = 1024
+Number of time frames (TF) = 819
+Number of channels = 64
+Peak identification method used : Semi-automatic

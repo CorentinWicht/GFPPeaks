@@ -1,0 +1,41 @@
+---- EEG PARAMETERS SUMMARY ----
+Epoch (in ms) = -100  700
+Sampling rate = 1024
+Number of time frames (TF) = 819
+Number of channels = 64
+Peak identification method used : Manual
+
+----N2 COMPONENT [307-461 TF]----
+
+LEVEL 1: OH_OH
+Individual GFP standard deviation (in TF) = 40.2836
+Group-/Condition-averaged max GFP (in TF) = 336
+
+LEVEL 2: PBO_OH
+Individual GFP standard deviation (in TF) = 28.86
+Group-/Condition-averaged max GFP (in TF) = 303
+
+Related figure name: D:\Users\wicht\Dropbox\CORENTIN\STUDY CAFFEINE\ANALYSES\SCRIPTS\MATLAB\GFPPeaks\Output\GFPPeak_N2_Manual.png
+
+Filesnames and their respective component peak GFP (in TF)
+OH_OH3_BEG_refCz.Ex.ep - 334
+OH_OH7_BEG_refCz.Ex.ep - 351
+OH_OH10_BEG_refCz.Ex.ep - 269
+OH_OH12_BEG_refCz.Ex.ep - 307
+OH_OH13_BEG_refCz.Ex.ep - 403
+OH_OH15_BEG_refCz.Ex.ep - 350
+OH_OH17_BEG_refCz.Ex.ep - 369
+OH_OH18_BEG_refCz.Ex.ep - 320
+OH_OH20_BEG_refCz.Ex.ep - 366
+OH_OH23_BEG_refCz.Ex.ep - 290
+PBO_OH1_BEG_refCz.Ex.ep - 285
+PBO_OH4_BEG_refCz.Ex.ep - 355
+PBO_OH5_BEG_refCz.Ex.ep - 276
+PBO_OH6_BEG_refCz.Ex.ep - 257
+PBO_OH9_BEG_refCz.Ex.ep - 307
+PBO_OH11_BEG_refCz.Ex.ep - 326
+PBO_OH14_BEG_refCz.Ex.ep - 288
+PBO_OH16_BEG_refCz.Ex.ep - 321
+PBO_OH19_BEG_refCz.Ex.ep - 290
+PBO_OH21_BEG_refCz.Ex.ep - 322
+

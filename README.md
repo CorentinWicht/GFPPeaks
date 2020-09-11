@@ -20,3 +20,36 @@ Then, you will need to run the following script: ```GFPPeaks.m```
 
 You will find below a step by step explanation on how to run each script in MATLAB (by clicking on the `▶️ Run` button or on your keyboard's button `⌨️ F5`).
 
+
+![](tools/screenshots/LoadFiles.png)
+
+
+![](tools/screenshots/ProcessingMode.png)
+
+
+![](tools/screenshots/Design.png)
+
+
+![](tools/screenshots/RestrictData.png)
+
+
+![](tools/screenshots/IncludeFiles.png)
+
+
+![](tools/screenshots/SucessfullyLoaded.png)
+
+
+![](tools/screenshots/ERPParams.png)
+
+
+![](tools/screenshots/ComponentsDef.png)
+
+
+![](tools/screenshots/MainWindow.png)
+
+
+![](tools/screenshots/GFPPeakData.png)
+
+
+![](tools/screenshots/Results.png)
+

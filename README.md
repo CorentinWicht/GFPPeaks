@@ -70,7 +70,7 @@ For example, if you would like to ignore every EEG files that contains the patte
 
 ![](tools/screenshots/RestrictData.png)
 
-Here you have the possibility to decide whether you want to process all data contained in the folder you provided in [Chapter 1](###1.Loading-Files). \
+Here you have the possibility to decide whether you want to process all data contained in the folder you provided in [Chapter 1](###1.loading-files). \
 THIS LINK IS NOT WORKING !!
 
 

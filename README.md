@@ -21,14 +21,14 @@ Then, you will need to run the following script: ```GFPPeaks.m```
 You will find below a step by step explanation on how to run each script in MATLAB (by clicking on the `▶️ Run` button or on your keyboard's button `⌨️ F5`).
 
 
-### 1.Loading Files
+### 1. Loading Files
 
 ![](tools/screenshots/LoadFiles.png)
 
 Here you are asked to provide the most upper folder containing all your ERP files with .ep extension.
 
 
-### 2.Processing Mode
+### 2. Processing Mode
 
 ![](tools/screenshots/ProcessingMode.png)
 
@@ -37,7 +37,7 @@ The semi-automated method looks for the GFP peak inside each component's upper a
 The manual method requires you to enter manually the GFP peaks for each files (identified for e.g. with CARTOOL) in the table detailed in chapter **XXX**. 
 
 
-### 3.Design Definition
+### 3. Design Definition
 
 ![](tools/screenshots/Design.png)
 

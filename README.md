@@ -36,8 +36,8 @@ Here you are asked to provide the most upper folder containing all your ERP file
 ![](tools/screenshots/ProcessingMode.png)
 
 You can choose between a semi-automated or manual processing modes. \
-The semi-automated method looks for the GFP peak inside each component's upper and lower bounds as defined in chapter **XXX**, see chapter **XXX** for an example of the window. \
-The manual method requires you to enter manually the GFP peaks for each files (identified for e.g. with CARTOOL) in the table detailed in chapter **XXX**. 
+The semi-automated method looks for the GFP peak inside each component's upper and lower bounds as defined in [Chapter 7](#7-erp-components-definition), *see* [Chapter 8.1](#81-main-window) *for an example of the main GFP Peaks window.* \
+The manual method requires you to enter manually the GFP peaks for each files (identified for e.g. with CARTOOL) in the table detailed in [Chapter 8.2](#82-data-table). 
 
 
 ### 3. Design Definition
@@ -114,7 +114,7 @@ Column 4 & 5: Indicate which electrode(s) are the most representative of the com
 ```
 
 **Note that on columns 4 & 5 you HAVE to indicate at least 1 electrode and up to 2 electrodes** \
-This information will be used in the [GFP peaks main display](#8.1-main-window) 
+This information will be used in the GFP peaks main display in [Chapter 8.1](#81-main-window)
 
 
 ### 8. GFPPeaks Windows
@@ -122,12 +122,41 @@ This information will be used in the [GFP peaks main display](#8.1-main-window)
 
 ![](tools/screenshots/MainWindow.png)
 
+This is the main window which will enable you to determine whether the preselected GFP peak in the data table (*see* [Chapter 8.2](#82-data-table)) is correct. \
+The window displays *from left to right, top to bottom*:
+```
+1) The ERP including all channels (each channel is represented as one line) [top left].
+2-3) The ERP data for the most representative electrode(s) input in the table, Chapter 7 [top right and bottom left].
+4) The GFP data for epoch of interest [bottom right].
+```
+The vertical bar represent, for all graphs, the position of the maximum GFP identified by the script (the maximum is really visible in the bottom right graph). \
+Next to the vertical bar, you have the exact peak position in ms and in time-frames (TF; i.e. dependent of your sampling rate).
+
+**WHAT DO THE BAR MEANS IN THE END?!?!??!**
+
+On the far right you will find the topography at the GFP peak (indicated in TF in the title). \
+You have the possibility to use the slide bar below to inspect the topography of the whole ERP period.
+
 
 #### 8.2 Data Table
 
 ![](tools/screenshots/GFPPeakData.png)
 
+This table will popup next the main figure from [Chapter 8.1](#81-main-window). \
+**⚠️ DO NOT CLOSE THIS TABLE BEFORE YOU ARE FINISHED WITH THE CURRENT FILE ⚠️**.
+
+The GFP peak for the current file will be prefilled if you selected the semi-automatic method while the table will be completely empty if you selected the manual method (*see* [Chapter 2](#2-processing-mode)).
+
+For the semi-automatic method, either you leave the prefilled value if you think it is correct or you can change it manually. \
+
+**Once you are satisfied with your results you can close the data table and the results will be saved**.
 
 ### 9. Exported Figure
+
 ![](tools/screenshots/Results.png)
+
+You are now done with the script and based on what you gave in [Chapter 6](#6-erp-parameters) as folder name for the outputs, you fill find the figure above.\
+This figure shows the mean GFP data for the provided ERP epoch, separated by conditions/groups (i.e. depending on your design). \
+The vertical red line represents the mean GFP peak while the red rectangle represents +- 1 Standard Deviation (SD) around the mean peak.\
+Finally, below the GFP graph you will find the topography averaged over the period included in +- 1 Standard Deviation (SD) around the mean peak (i.e. time range of averaging indicated in TF in the title).
 

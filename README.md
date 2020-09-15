@@ -2,7 +2,7 @@
 
 The MATLAB script in this repository enable the semi-automatic identification of [Global Field Power (GFP)](https://www.hindawi.com/journals/cin/2011/813870/) peaks on Event-Related Potentials (ERP) files. 
 
-The method is based on: [Wicht, C.A., De Pretto, M. & Spierer L.; Neural correlates of expectations-induced effects of caffeine intake on executive functions; Cortex Registered Reports, received stage 1 in principle acceptance (IPA)](https://osf.io/sudnm/)
+The method is based on: [Wicht, C.A., De Pretto, M. & Spierer L.; Neural correlates of expectations-induced effects of caffeine intake on executive functions; Cortex Registered Reports, *stage 1 in principle acceptance*](https://osf.io/sudnm/)
 
 
 **⚠️ OF NOTE: The analysis script can currently only import .ep EEG files (see [Cartool](https://sites.google.com/site/cartoolcommunity/)).**
@@ -73,34 +73,57 @@ For example, if you would like to ignore every EEG files that contains the patte
 
 ![](tools/screenshots/RestrictData.png)
 
-Here you have the possibility to decide whether you want to process all data contained in the folder you provided in [Chapter 1](###1.LoadingFiles). \
-THIS LINK IS NOT WORKING !!
+Here you have the possibility whether you would like to process all the data in the folder path you provided in [Chapter 1](#1-loading-files) or only a subset of the files. \
 
 
 ### 5. Include Files
 
 ![](tools/screenshots/IncludeFiles.png)
 
+Here you have the possibility to decide which data you like to process. \
+Close the window once you are satisfied with your choice.
 
 ![](tools/screenshots/SucessfullyLoaded.png)
+
+In MATLAB's command window you will see the list of correctly loaded files according to your selection in the previous prompt.
 
 
 ### 6. ERP Parameters
 
 ![](tools/screenshots/ERPParams.png)
 
+In this prompt you need to:
+```
+1) define the epoching interval of your files (e.g. -100 to 700ms), in MILLISECONDS (!). 
+2) report the sampling rate (e.g. 1024Hz).
+3) Define a folder name where to save the results (e.g. "Output").
+```
 
 ### 7. ERP Components Definition
 
 ![](tools/screenshots/ComponentsDef.png)
 
+This is one of the most important prompt ! \
+On each of the four lines you have the possibility to define a specific ERP component of interest. \
+Each column should be filled accordingly:
+```
+Column 1: Type in the name of the component (e.g. N2)
+Column 2: Define the lower bound in ms for the component of interest (e.g. 200ms)
+Column 3: define the upper bound in ms for the component of interest (e.g. 350ms)
+Column 4 & 5: Indicate which electrode(s) are the most representative of the component of interest (e.g. "CPz" for component N2).
+```
+
+**Note that on columns 4 & 5 you HAVE to indicate at least 1 electrode and up to 2 electrodes** \
+This information will be used in the [GFP peaks main display](#8.1-main-window) 
+
 
 ### 8. GFPPeaks Windows
-#### 8.1 Main window
+#### 8.1 Main Window
 
 ![](tools/screenshots/MainWindow.png)
 
-#### 8.2 Data table
+
+#### 8.2 Data Table
 
 ![](tools/screenshots/GFPPeakData.png)
 

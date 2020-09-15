@@ -126,8 +126,8 @@ This is the main window which will enable you to determine whether the preselect
 The window displays *from left to right, top to bottom*:
 ```
 1) The ERP including all channels (each channel is represented as one line) [top left].
-2-3) The ERP data for the most representative electrode(s) input in the table, Chapter 7 [top right and bottom left].
-4) The GFP data for epoch of interest [bottom right].
+2-3) The ERP activity for the most representative electrode(s) input in the table, Chapter 7 [top right and bottom left].
+4) The GFP activity for epoch of interest [bottom right].
 ```
 The vertical bar represent, for all graphs, the position of the maximum GFP identified by the script (the maximum is really visible in the bottom right graph). \
 Next to the vertical bar, you have the exact peak position in ms and in time-frames (TF; i.e. dependent of your sampling rate).
@@ -156,7 +156,7 @@ For the semi-automatic method, either you leave the prefilled value if you think
 ![](tools/screenshots/Results.png)
 
 You are now done with the script and based on what you gave in [Chapter 6](#6-erp-parameters) as folder name for the outputs, you fill find the figure above.\
-This figure shows the mean GFP data for the provided ERP epoch, separated by conditions/groups (i.e. depending on your design). \
+This figure shows the mean GFP activity for the provided ERP epoch, separated by conditions/groups (i.e. depending on your design). \
 The vertical red line represents the mean GFP peak while the red rectangle represents +- 1 Standard Deviation (SD) around the mean peak.\
 Finally, below the GFP graph you will find the topography averaged over the period included in +- 1 Standard Deviation (SD) around the mean peak (i.e. time range of averaging indicated in TF in the title).
 

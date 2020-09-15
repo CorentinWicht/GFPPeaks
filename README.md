@@ -1,6 +1,9 @@
 # GFPPeaks
 
-The MATLAB script in this repository enable the semi-automatic identification of [Global Field Power (GFP)](https://www.hindawi.com/journals/cin/2011/813870/) peaks on Event-Related Potentials (ERP) files 
+The MATLAB script in this repository enable the semi-automatic identification of [Global Field Power (GFP)](https://www.hindawi.com/journals/cin/2011/813870/) peaks on Event-Related Potentials (ERP) files. 
+
+The method is based on: [Wicht, C.A., De Pretto, M. & Spierer L.; Neural correlates of expectations-induced effects of caffeine intake on executive functions; Cortex Registered Reports, received stage 1 in principle acceptance (IPA)](https://osf.io/sudnm/)
+
 
 **⚠️ OF NOTE: The analysis script can currently only import .ep EEG files (see [Cartool](https://sites.google.com/site/cartoolcommunity/)).**
 
@@ -33,7 +36,7 @@ Here you are asked to provide the most upper folder containing all your ERP file
 ![](tools/screenshots/ProcessingMode.png)
 
 You can choose between a semi-automated or manual processing modes. \
-The semi-automated method looks for the GFP peak inside each component's upper and lower bounds as defined in chapter **XXX**, see chapter **XXX** for an exemple of the window. \
+The semi-automated method looks for the GFP peak inside each component's upper and lower bounds as defined in chapter **XXX**, see chapter **XXX** for an example of the window. \
 The manual method requires you to enter manually the GFP peaks for each files (identified for e.g. with CARTOOL) in the table detailed in chapter **XXX**. 
 
 
@@ -74,23 +77,34 @@ Here you have the possibility to decide whether you want to process all data con
 THIS LINK IS NOT WORKING !!
 
 
+### 5. Include Files
+
 ![](tools/screenshots/IncludeFiles.png)
 
 
 ![](tools/screenshots/SucessfullyLoaded.png)
 
 
+### 6. ERP Parameters
+
 ![](tools/screenshots/ERPParams.png)
 
+
+### 7. ERP Components Definition
 
 ![](tools/screenshots/ComponentsDef.png)
 
 
+### 8. GFPPeaks Windows
+#### 8.1 Main window
+
 ![](tools/screenshots/MainWindow.png)
 
+#### 8.2 Data table
 
 ![](tools/screenshots/GFPPeakData.png)
 
 
+### 9. Exported Figure
 ![](tools/screenshots/Results.png)
 

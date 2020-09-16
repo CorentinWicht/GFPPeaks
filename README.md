@@ -13,7 +13,28 @@ C.A. Wicht, GFPPeaks, (2020), GitHub repository, https://github.com/CorentinWich
 *Missing DOI*
 
 ## Table of Contents
-XXX
+- [GFPPeaks](#gfppeaks)
+  * [Cite the repository](#cite-the-repository)
+  * [Table of Contents](#table-of-contents)
+  * [Getting Started](#getting-started)
+    + [1. Loading Files](#1-loading-files)
+    + [2. Processing Mode](#2-processing-mode)
+    + [3. Design Definition](#3-design-definition)
+    + [4. Data Files Selection](#4-data-files-selection)
+    + [5. Include Files](#5-include-files)
+    + [6. ERP Parameters](#6-erp-parameters)
+    + [7. ERP Components Definition](#7-erp-components-definition)
+    + [8. GFPPeaks Windows](#8-gfppeaks-windows)
+      - [8.1 Main Window](#81-main-window)
+      - [8.2 Data Table](#82-data-table)
+    + [9. Exported Figure](#9-exported-figure)
+  * [Author](#author)
+  * [License](#license)
+  * [Acknowledgements](#acknowledgements)
+  * [Fundings](#fundings)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
 
 ## Getting Started
 

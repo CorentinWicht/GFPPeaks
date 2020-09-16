@@ -10,7 +10,7 @@ The method is based on: [Wicht, C.A., De Pretto, M. & Spierer L.; Neural correla
 
 ## Cite the repository
 C.A. Wicht, GFPPeaks, (2020), GitHub repository, https://github.com/CorentinWicht/GFPPeaks \
-*Missing DOI*
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4032759.svg)](https://doi.org/10.5281/zenodo.4032759)
 
 ## Table of Contents
 - [GFPPeaks](#gfppeaks)

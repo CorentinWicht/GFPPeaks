@@ -364,7 +364,7 @@ for n=1:size(CompList,1) % For each Comp
         % Compute mean GFP for each level
         MeanPeakGFP = structfun(@(x) mean(x),MaxGFPStructTF,'UniformOutput',0);
 
-        % Compute SD over individual GFP peaks for each level
+        % Compute SD over individual GFP for each level
         SDPeakGFP = structfun(@(x) std(x),MaxGFPStructTF,'UniformOutput',0);
     end
 

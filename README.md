@@ -159,3 +159,22 @@ This figure shows the mean GFP activity for the provided ERP epoch, separated by
 The vertical red line represents the peak (i.e. maximum) of the mean of each individual GFP, while the red rectangle represents +- 1 Standard Deviation (SD) over the each individual GFP.\
 Finally, below the GFP graph you will find the topography averaged over the period included in +- 1 Standard Deviation (SD) around the mean peak (i.e. time range of averaging indicated in TF in the title).
 
+## Author
+[**Corentin Wicht**](https://www.researchgate.net/profile/Wicht_Corentin)\
+*SNSF Doc.CH PhD student*\
+*corentin.wicht@unifr.ch, corentinw.lcns@gmail.com*\
+*[Laboratory for Neurorehabilitation Science](https://www3.unifr.ch/med/spierer/en/)*\
+*University of Fribourg, Switzerland*
+
+## License
+<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial 4.0 International License</a>.
+
+See the [LICENSE.md](LICENSE.md) file for details
+
+## Acknowledgements
+PD Dr. Lucas Spierer, Director of the [Laboratory for Neurorehabilitation Science (LNS), Section of Medicine, Faculty of Science and Medicine, University of Fribourg, Switzerland](https://www3.unifr.ch/med/spierer/en/) provided substantial support and advices regarding theoretical conceptualization as well as access to the workplace and the infrastructure required to successfully complete the project.
+
+## Fundings
+This project was supported by [Swiss National Science Foundation](http://www.snf.ch/fr/Pages/default.aspx) grants:
+* [#P0LAP1_181689](http://p3.snf.ch/project-181689) to Corentin Wicht
+* [#320030_175469](http://p3.snf.ch/project-175469) to PD Dr. Lucas Spierer

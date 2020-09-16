@@ -129,10 +129,9 @@ The window displays *from left to right, top to bottom*:
 2-3) The ERP activity for the most representative electrode(s) input in the table, Chapter 7 [top right and bottom left].
 4) The GFP activity for epoch of interest [bottom right].
 ```
-The vertical bar represent, for all graphs, the position of the maximum GFP identified by the script (the maximum is really visible in the bottom right graph). \
-Next to the vertical bar, you have the exact peak position in ms and in time-frames (TF; i.e. dependent of your sampling rate).
-
-**WHAT DO THE BAR MEANS IN THE END?!?!??!**
+The vertical line represent, for all graphs, the position of the maximum GFP identified by the script (the maximum is really visible in the bottom right graph). \
+Next to the vertical line, you have the exact peak position in ms and in time-frames (TF; i.e. dependent of your sampling rate). \
+The vertical blue bar represents the component of interest's time scale. 
 
 On the far right you will find the topography at the GFP peak (indicated in TF in the title). \
 You have the possibility to use the slide bar below to inspect the topography of the whole ERP period.
@@ -157,6 +156,6 @@ For the semi-automatic method, either you leave the prefilled value if you think
 
 You are now done with the script and based on what you gave in [Chapter 6](#6-erp-parameters) as folder name for the outputs, you fill find the figure above.\
 This figure shows the mean GFP activity for the provided ERP epoch, separated by conditions/groups (i.e. depending on your design). \
-The vertical red line represents the mean GFP peak while the red rectangle represents +- 1 Standard Deviation (SD) around the mean peak.\
+The vertical red line represents the peak (i.e. maximum) of the mean of each individual GFP, while the red rectangle represents +- 1 Standard Deviation (SD) over the each individual GFP.\
 Finally, below the GFP graph you will find the topography averaged over the period included in +- 1 Standard Deviation (SD) around the mean peak (i.e. time range of averaging indicated in TF in the title).
 

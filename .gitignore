@@ -1,4 +1,2 @@
-Output/**/*.txt
-Output/**/*.png
-TestData_OH/**/*.ep
-TestData_OH/**/*.vrb
+Output/
+TestData_OH/

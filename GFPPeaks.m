@@ -205,6 +205,9 @@ fprintf(fid,'%s\r\n',['Sampling rate = ' num2str(SamplingRate)]);
 fprintf(fid,'%s\r\n',['Number of time frames (TF) = ' num2str(numtimeframes)]);
 fprintf(fid,'%s\r\n',['Number of channels = ' num2str(numchannels)]);
 fprintf(fid,'%s\r\n',['Peak identification method used : ' Method]);
+
+% Creating the .txt output for averaged GFP
+fid2 = fopen([OutputPath '\' OutputFolder '\AvgGFP_' date_name '.txt'],'w');
         
 for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     
@@ -418,6 +421,26 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         fprintf(fid,'\r\n%s\r\n',sprintf('LEVEL %d: %s',m,Fields{m}));
         fprintf(fid,'%s\r\n',['Individual GFP standard deviation (in TF) = ' num2str(SDPeakGFP.(Fields{m}))]);
         fprintf(fid,'%s\r\n',['Group-/Condition-averaged max GFP (in TF) = ' num2str(MaxGFP.(Fields{m}).Pos)]);
+        
+        %% Retrieving individual GFP averaged over the POI identified above
+
+        % Write in the .txt output
+        fprintf(fid2,'\r\n%s\r\n','individual GFP averaged over the POI');
+        fprintf(fid,'\r\n%s\r\n',sprintf('LEVEL %d: %s',m,Fields{m}));
+        
+        % Retrieve the individual GFP averaged over the POI
+        % NEED TO TEST THIS !!!! 
+        LowBound = SDPeakGFP.(Fields{m}) - MaxGFP.(Fields{m}).Pos;
+        HighBound = SDPeakGFP.(Fields{m}) + MaxGFP.(Fields{m}).Pos;
+        AvgGFP = zeros(size(GFPData.(Levels{k}),2),1);
+        for r=1:size(GFPData.(Levels{k}),2)
+            AvgGFP(r) = mean(GFPData.(Levels{k})(LowBound:HighBound,r));
+        end
+        
+        % Fill in the .txt output
+        ToSave = [AllNames' num2cell(AvgGFP)];
+        for j=1:length(ToSave);fprintf(fid2,'%s - %d\r\n',ToSave{j,1},ToSave{j,2});end
+        fprintf(fid2,'\r\n');
     end
     
     % Save figure 
@@ -435,3 +458,4 @@ end
 
 % Close txt file
 fclose(fid);
+fclose(fid2);

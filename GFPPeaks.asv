@@ -172,7 +172,6 @@ f = figure('Position', [ScreenSize(3)/2-500/2 ScreenSize(4)/2-500/2 600 600]);
 p = uitable('Parent', f,'Data',to_display,'ColumnEdit',true(1,size(to_display,2)),'ColumnName',...
     {'Name','Lower bound (ms)','Upper bound (ms)'},'Position',[50 -100 500 400],...
     'CellEditCallBack','CompList = get(gco,''Data'');');
-p.;
 uicontrol('Style', 'text', 'Position', [60 350 450 130], 'String',...
         {['COMPONENTS DEFINITION' newline ''],['The definition of the Period(s) of Interest needs to be structured in the following way:'...
         newline '1st column = Name of the Component (e.g. N2)',...
@@ -206,6 +205,9 @@ fprintf(fid,'%s\r\n',['Sampling rate = ' num2str(SamplingRate)]);
 fprintf(fid,'%s\r\n',['Number of time frames (TF) = ' num2str(numtimeframes)]);
 fprintf(fid,'%s\r\n',['Number of channels = ' num2str(numchannels)]);
 fprintf(fid,'%s\r\n',['Peak identification method used : ' Method]);
+
+% Creating the .txt output for averaged GFP
+fid2 = fopen([OutputPath '\' OutputFolder '\AvgGFP_' date_name '.txt'],'w');
         
 for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     
@@ -419,6 +421,25 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         fprintf(fid,'\r\n%s\r\n',sprintf('LEVEL %d: %s',m,Fields{m}));
         fprintf(fid,'%s\r\n',['Individual GFP standard deviation (in TF) = ' num2str(SDPeakGFP.(Fields{m}))]);
         fprintf(fid,'%s\r\n',['Group-/Condition-averaged max GFP (in TF) = ' num2str(MaxGFP.(Fields{m}).Pos)]);
+        
+        %% Retrieving individual GFP averaged over the POI identified above
+
+        % Write in the .txt output
+        fprintf(fid2,'\r\n%s\r\n','individual GFP averaged over the POI');
+        fprintf(fid,'\r\n%s\r\n',sprintf('LEVEL %d: %s',m,Fields{m}));
+        
+        % Retrieve the individual GFP averaged over the POI
+        LowBound = SDPeakGFP.(Fields{m}) - MaxGFP.(Fields{m}).Pos;
+        HighBound = SDPeakGFP.(Fields{m}) + MaxGFP.(Fields{m}).Pos;
+        for r=1:size(GFPData.(Levels{k}),2)
+            AvgGFP()
+        end
+        AvgGFP = structfun(@(x) mean(x(LowBound:HighBound,:),GFPData.(Levels{k})); 
+        
+        % Fill in the .txt output
+        ToSave = [AllNames' num2cell(MaxGFPList)];
+        for j=1:length(ToSave);fprintf(fid2,'%s - %d\r\n',ToSave{j,1},ToSave{j,2});end
+        fprintf(fid2,'\r\n');
     end
     
     % Save figure 
@@ -436,3 +457,4 @@ end
 
 % Close txt file
 fclose(fid);
+fclose(fid2);

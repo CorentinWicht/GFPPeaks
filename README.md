@@ -15,10 +15,9 @@ C.A. Wicht, GFPPeaks, (2020), GitHub repository, https://github.com/CorentinWich
 ## Table of Contents
 - [GFPPeaks](#gfppeaks)
   * [Cite the repository](#cite-the-repository)
-  * [Table of Contents](#table-of-contents)
   * [Getting Started](#getting-started)
-    + [1. Loading Files](#1-loading-files)
-    + [2. Processing Mode](#2-processing-mode)
+    + [1. Files Extensions and Processing Mode](#1-files-extensions-and-processing-mode)
+    + [2. Loading Files](#2-loading-files)
     + [3. Design Definition](#3-design-definition)
     + [4. Data Files Selection](#4-data-files-selection)
     + [5. Include Files](#5-include-files)
@@ -34,6 +33,7 @@ C.A. Wicht, GFPPeaks, (2020), GitHub repository, https://github.com/CorentinWich
   * [Fundings](#fundings)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
 
 
 ## Getting Started

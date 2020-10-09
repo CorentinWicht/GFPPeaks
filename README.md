@@ -45,20 +45,22 @@ Then, you will need to run the following script: ```GFPPeaks.m```
 You will find below a step by step explanation on how to run each script in MATLAB (by clicking on the `▶️ Run` button or on your keyboard's button `⌨️ F5`).
 
 
-### 1. Loading Files
+### 1. Files Extensions and Processing Mode
+
+![](tools/screenshots/Settings.png)
+
+You can define first define the extension of the files you would like to load (currently .ep or .eph). 
+
+Then, you can choose between a semi-automated or manual processing modes. \
+The semi-automated method looks for the GFP peak inside each component's upper and lower bounds as defined in [Chapter 7](#7-erp-components-definition), *see* [Chapter 8.1](#81-main-window) *for an example of the main GFP Peaks window.* \
+The manual method requires you to enter manually the GFP peaks for each files (identified for e.g. with CARTOOL) in the table detailed in [Chapter 8.2](#82-data-table). 
+
+
+### 2. Loading Files
 
 ![](tools/screenshots/LoadFiles.png)
 
 Here you are asked to provide the most upper folder containing all your ERP files with .ep extension.
-
-
-### 2. Processing Mode
-
-![](tools/screenshots/ProcessingMode.png)
-
-You can choose between a semi-automated or manual processing modes. \
-The semi-automated method looks for the GFP peak inside each component's upper and lower bounds as defined in [Chapter 7](#7-erp-components-definition), *see* [Chapter 8.1](#81-main-window) *for an example of the main GFP Peaks window.* \
-The manual method requires you to enter manually the GFP peaks for each files (identified for e.g. with CARTOOL) in the table detailed in [Chapter 8.2](#82-data-table). 
 
 
 ### 3. Design Definition
@@ -131,11 +133,9 @@ Each column should be filled accordingly:
 Column 1: Type in the name of the component (e.g. N2)
 Column 2: Define the lower bound in ms for the component of interest (e.g. 200ms)
 Column 3: define the upper bound in ms for the component of interest (e.g. 350ms)
-Column 4 & 5: Indicate which electrode(s) are the most representative of the component of interest (e.g. "CPz" for component N2).
 ```
 
-**Note that on columns 4 & 5 you HAVE to indicate at least 1 electrode and up to 2 electrodes** \
-This information will be used in the GFP peaks main display in [Chapter 8.1](#81-main-window)
+These informations will be used in the GFP peaks main display in [Chapter 8.1](#81-main-window)
 
 
 ### 8. GFPPeaks Windows
@@ -147,15 +147,15 @@ This is the main window which will enable you to determine whether the preselect
 The window displays *from left to right, top to bottom*:
 ```
 1) The ERP including all channels (each channel is represented as one line) [top left].
-2-3) The ERP activity for the most representative electrode(s) input in the table, Chapter 7 [top right and bottom left].
-4) The GFP activity for epoch of interest [bottom right].
+2) The GFP activity for epoch of interest [bottom left].
+3) The topographical plot (topoplot) [right].
 ```
-The vertical line represent, for all graphs, the position of the maximum GFP identified by the script (the maximum is really visible in the bottom right graph). \
+The vertical line represent, for all graphs, the position of the maximum GFP identified by the script. \
 Next to the vertical line, you have the exact peak position in ms and in time-frames (TF; i.e. dependent of your sampling rate). \
-The vertical blue bar represents the component of interest's time scale. 
+The vertical blue bar represents the component of interest's time range. 
 
 On the far right you will find the topography at the GFP peak (indicated in TF in the title). \
-You have the possibility to use the slide bar below to inspect the topography of the whole ERP period.
+You have the possibility to use the slide bar below to inspect the topography of the whole ERP period while this will also adjust the vertical line in all other graphs.
 
 
 #### 8.2 Data Table

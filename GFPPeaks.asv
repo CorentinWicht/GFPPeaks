@@ -46,9 +46,9 @@ if PromptIndivGFP(2)==1; Method='semi-automatic'; elseif PromptIndivGFP(2)==2; M
 root_folder = uigetdir(p2,'Choose the path of your most upper folder containing your files.');
 cd(root_folder)
 FileList = dir(['**/*' Extension]);
-OutputPath = strsplit(root_folder,'\');
-OutputPath = strcat(OutputPath(1:end-1),'\');
-OutputPath = strcat(OutputPath{:});
+OutputFolder = strsplit(root_folder,'\');
+OutputFolder = strcat(OutputFolder(1:end-1),'\');
+OutputFolder = strcat(OutputFolder{:});
 
 % Sort FileList according to natural order
 [~, Idx] = natsort({FileList.name});
@@ -155,7 +155,7 @@ PromptValues = {'-100 700','1024','Output'};
 PromptInputs = inputdlg(PromptInstructions,'EEG parameters',1,PromptValues);
 Epoch = str2num(PromptInputs{1});
 SamplingRate = str2double(PromptInputs{2});
-OutputFolder = PromptInputs{3}; mkdir([OutputPath '\' OutputFolder]);
+OutputFolder = PromptInputs{3}; mkdir([p2 '\' OutputFolder]);
 if numchannels>63
     Chanlocs = load([p2 '\Functions\ChanLocs_CMSDRL.mat']); Chanlocs = Chanlocs.TEMP;
 else
@@ -194,11 +194,11 @@ Ticks = 1:TickSpacing:Epoch(2)+abs(Epoch(1))+TickSpacing;
 %% COMPUTE GFP
 % Taken from "Matlabroutinesforcartoolers" functions 
 % https://sites.google.com/site/cartoolcommunity/files
-Fields = fieldnames(EEGData); 
+Fields = fieldnames(EEGData); Pos = 1; Numbers = repmat({[]},[size(AllNames,2) 1]);
 
 % Create a .txt file for outputs
 date_name = datestr(now,'dd-mm-yy_HHMM');
-fid = fopen([OutputPath '\' OutputFolder '\Results_' date_name '.txt'],'w');
+fid = fopen([OutputFolder '\' OutputFolder '\Results_' date_name '.txt'],'w');
 fprintf(fid,'%s\r\n','---- EEG PARAMETERS SUMMARY ----');
 fprintf(fid,'%s\r\n',['Epoch (in ms) = ' num2str(Epoch)]);
 fprintf(fid,'%s\r\n',['Sampling rate = ' num2str(SamplingRate)]);
@@ -207,9 +207,6 @@ fprintf(fid,'%s\r\n',['Number of channels = ' num2str(numchannels)]);
 fprintf(fid,'%s\r\n',['Peak identification method used : ' Method]);
         
 for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
-    
-    % Initialize variables
-    Pos = 1; Numbers = repmat({[]},[size(AllNames,2) 1]);
     
     % Remove empty lines and store data for the current component
     EmptIdx = ~cellfun(@(x) isempty(x),CompList(n,:));
@@ -275,7 +272,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
                 rectangle('Position',PosRectinTF,'FaceColor',[0 0 1 0.2],'EdgeColor',[0 0 1 0.2]);
 
                 % Legend
-                LegendLabel = {'GFP';CompN{1}};
+                LegendLabel = {'GFP';CompN{n}};
                 Lgd = legend(LegendLabel); title(Lgd,'Component','Color','k');
                 
                 % Store parameters
@@ -284,7 +281,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
                 Param.TEMPCompinTF=TEMPCompinTF;
                 Param.Epoch=Epoch;
                 Param.SamplingRate=SamplingRate;
-                Param.CompN=CompN{1};
+                Param.CompN=CompN{n};
                 
                 % 3. TOPOPLOTS
                 slider_plot(Fig,EEGTEMP,MaxPos,Chanlocs,Param,TEMPGFP)
@@ -311,7 +308,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
                 waitfor(p);  close gcf;
                 
                 % Store results
-                MaxIndivGFP.CompN{1}.(Levels{k})(m) = MaxGFPList{Pos,2}; 
+                MaxIndivGFP.(Levels{k})(m) = MaxGFPList{Pos,2}; 
                 to_display{m,2} = MaxGFPList{Pos,2}; Numbers{Pos} = MaxGFPList{Pos,2};
                 Pos = Pos + 1;
                 clear Fig MaxGFPList;
@@ -322,12 +319,12 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     % Compute mean GFP for each level
     MeanGFP = structfun(@(x) mean(x,2),GFPData,'UniformOutput',0);
     if strcmpi(Method,'semi-automatic')
-        TEMP = cell2mat(struct2cell(MaxIndivGFP.CompN{1}));
+        TEMP = cell2mat(struct2cell(MaxIndivGFP));
         MaxGFPList = TEMP(:);
-        MeanPeakGFP = structfun(@(x) mean(x,2),MaxIndivGFP.CompN{1},'UniformOutput',0);
+        MeanPeakGFP = structfun(@(x) mean(x,2),MaxIndivGFP,'UniformOutput',0);
 
         % Compute SD over individual GFP peaks for each level
-        SDPeakGFP = structfun(@(x) std(x),MaxIndivGFP.CompN{1},'UniformOutput',0);
+        SDPeakGFP = structfun(@(x) std(x),MaxIndivGFP,'UniformOutput',0);
     end
 
     % MANUAL INDIVIDUAL GFP PEAKS LOCALISATION (e.g. using CARTOOL)
@@ -421,7 +418,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     end
     
     % Save figure 
-    FigName = [OutputPath '\' OutputFolder '\GFPPeak_' CompN{1} '_' Method '_' date_name '.png'];
+    FigName = [OutputFolder '\' OutputFolder '\GFPPeak_' CompN{1} '_' Method '_' date_name '.png'];
     fprintf(fid,'\r\n%s\r\n',['Related figure name: ' FigName]);
     saveas(Fig,FigName); close gcf; clear Fig;    
     
@@ -430,7 +427,6 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     ToSave = [AllNames' num2cell(MaxGFPList)];
     for j=1:length(ToSave);fprintf(fid,'%s - %d\r\n',ToSave{j,1},ToSave{j,2});end
     fprintf(fid,'\r\n');
-    clear MaxGFPList;
 end
 
 % Close txt file

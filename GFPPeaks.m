@@ -362,8 +362,10 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         MaxGFPListMS = round(MaxGFPList/1024*1000 + Epoch(1));
         
         % Warning for files that are out of component's bounds  
-        warning('The following files are out of component %s bound:',CompN{1});
-        fprintf('%s \n',OutOfBounds{:});
+        if ~isempty(OutOfBounds)
+            warning('The following files are out of component %s bound:',CompN{1});
+            fprintf('%s \n',OutOfBounds{:});
+        end        
         
         % Build structure by levels
         for k=1:length(Fields) 
@@ -386,11 +388,13 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     % For .txt output
     fprintf(fid,'\r\n%s\r\n',['----' CompN{1} ' COMPONENT [' ...
         num2str(TEMPCompinTF(1)) '-'  num2str(TEMPCompinTF(2)) ' TF]'  '----']);
+    fprintf(fid2,'\r\n%s\r\n',['----' CompN{1} ' COMPONENT [' ...
+        num2str(TEMPCompinTF(1)) '-'  num2str(TEMPCompinTF(2)) ' TF]'  '----']);
     
     for m=1:length(Fields) % For each level
         MaxGFP.(Fields{m}).Pos = round(MeanPeakGFP.(Fields{m}));
         MaxGFP.(Fields{m}).Value = MeanGFP.(Fields{m})(MaxGFP.(Fields{m}).Pos);
-    
+
         %% PLOTTING
         
         % Main plot and parameters
@@ -423,28 +427,27 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         fprintf(fid,'%s\r\n',['Group-/Condition-averaged max GFP (in TF) = ' num2str(MaxGFP.(Fields{m}).Pos)]);
         
         %% Retrieving individual GFP averaged over the POI identified above
-
         % Write in the .txt output
-        fprintf(fid2,'\r\n%s\r\n','individual GFP averaged over the POI');
-        fprintf(fid,'\r\n%s\r\n',sprintf('LEVEL %d: %s',m,Fields{m}));
+        fprintf(fid2,'\r\n%s\r\n',['individual GFP averaged over the POI: ' ...
+            num2str(MaxGFP.(Fields{m}).Pos) ' ' num2str(SDPeakGFP.(Fields{m})) ...
+            ' (mean +- 1SD)']);
+        fprintf(fid2,'\r\n%s\r\n',sprintf('LEVEL %d: %s',m,Fields{m}));
         
-        % Retrieve the individual GFP averaged over the POI
-        % NEED TO TEST THIS !!!! 
-        LowBound = SDPeakGFP.(Fields{m}) - MaxGFP.(Fields{m}).Pos;
-        HighBound = SDPeakGFP.(Fields{m}) + MaxGFP.(Fields{m}).Pos;
-        AvgGFP = zeros(size(GFPData.(Levels{k}),2),1);
-        for r=1:size(GFPData.(Levels{k}),2)
-            AvgGFP(r) = mean(GFPData.(Levels{k})(LowBound:HighBound,r));
-        end
+        % Compute individual average GFP over the POI (+- 1 SD)
+        MaxGFP.(Fields{m}).MeanRange = mean(GFPData.(Fields{m})(Low:High,:));
+        MaxGFP.(Fields{m}).SDRange = std(GFPData.(Fields{m})(Low:High,:));
         
         % Fill in the .txt output
-        ToSave = [AllNames' num2cell(AvgGFP)];
-        for j=1:length(ToSave);fprintf(fid2,'%s - %d\r\n',ToSave{j,1},ToSave{j,2});end
+        ToSave = [AllNames;num2cell(MaxGFP.(Fields{m}).MeanRange);num2cell(MaxGFP.(Fields{m}).SDRange)]';
+        for j=1:length(ToSave);fprintf(fid2,'%s - %.4f %.4f\r\n',ToSave{j,1},ToSave{j,2}, ToSave{j,3});end
         fprintf(fid2,'\r\n');
     end
     
+    % Saving .mat file with results
+    save([OutputPath OutputFolder '\GFPResults_' CompN{1} '_' Method '_' date_name '.mat'],'MaxGFP')
+    
     % Save figure 
-    FigName = [OutputPath '\' OutputFolder '\GFPPeak_' CompN{1} '_' Method '_' date_name '.png'];
+    FigName = [OutputPath OutputFolder '\GFPPeak_' CompN{1} '_' Method '_' date_name '.png'];
     fprintf(fid,'\r\n%s\r\n',['Related figure name: ' FigName]);
     saveas(Fig,FigName); close gcf; clear Fig;    
     

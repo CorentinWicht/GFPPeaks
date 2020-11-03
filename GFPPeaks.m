@@ -128,7 +128,7 @@ if strcmp(PromptAnalyses,'Specific files')
 end
 
 % Load each .ep file and store it in structure according to design
-EEGData = []; Names = []; Fields = fieldnames(Design);
+EEGData = []; Names = []; Fields = fieldnames(Design); LevelNames = {};
 for k=1:length(Fields) % For BS and/or WS category
     Factors = fieldnames(Design.(Fields{k}));
     for j=1:length(Factors) % For each factor
@@ -143,6 +143,7 @@ for k=1:length(Fields) % For BS and/or WS category
                 [numchannels,numtimeframes,samplingrate,thedata]=openeph(Path);
                 EEGData.(Levels{m})(:,:,n) = thedata; % Store in main database
                 Names.(Levels{m})(n,1) = {LevelsFilesList(n).name};
+                LevelNames = [LevelNames Levels(m)]; % Vector of levels corresponding to files
                 disp(['File ' LevelsFilesList(n).name ' successfully loaded'])
             end
         end
@@ -207,7 +208,7 @@ fprintf(fid,'%s\r\n',['Number of channels = ' num2str(numchannels)]);
 fprintf(fid,'%s\r\n',['Peak identification method used : ' Method]);
 
 % Creating the .txt output for averaged GFP
-fid2 = fopen([OutputPath '\' OutputFolder '\AvgGFP_' date_name '.txt'],'w');
+% fid2 = fopen([OutputPath '\' OutputFolder '\AvgGFP_' date_name '.txt'],'w');
         
 for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     
@@ -362,8 +363,10 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         MaxGFPListMS = round(MaxGFPList/1024*1000 + Epoch(1));
         
         % Warning for files that are out of component's bounds  
-        warning('The following files are out of component %s bound:',CompN{1});
-        fprintf('%s \n',OutOfBounds{:});
+        if ~isempty(OutOfBounds)
+            warning('The following files are out of component %s bound:',CompN{1});
+            fprintf('%s \n',OutOfBounds{:});
+        end        
         
         % Build structure by levels
         for k=1:length(Fields) 
@@ -383,18 +386,24 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         sprintf('Results for component %s',CompN{1}),'FitBoxToText',...
         'on','FontSize',20,'EdgeColor','w');
     
+    % Initialize empty fields
+    MaxGFP.MeanRange = [];
+    MaxGFP.SDRange = [];
+    
     % For .txt output
     fprintf(fid,'\r\n%s\r\n',['----' CompN{1} ' COMPONENT [' ...
         num2str(TEMPCompinTF(1)) '-'  num2str(TEMPCompinTF(2)) ' TF]'  '----']);
+%     fprintf(fid2,'\r\n%s\r\n',['----' CompN{1} ' COMPONENT [' ...
+%         num2str(TEMPCompinTF(1)) '-'  num2str(TEMPCompinTF(2)) ' TF]'  '----']);
     
     for m=1:length(Fields) % For each level
         MaxGFP.(Fields{m}).Pos = round(MeanPeakGFP.(Fields{m}));
         MaxGFP.(Fields{m}).Value = MeanGFP.(Fields{m})(MaxGFP.(Fields{m}).Pos);
-    
+
         %% PLOTTING
         
         % Main plot and parameters
-        subplot(2,2,m)
+        subplot(2,length(Fields),m)
         plot(MeanGFP.(Levels{m}),'Color','k');axis tight;
         ylim([0 max(MeanGFP.(Levels{m}))])
         xlabel('Time (ms)'), ylabel('Mean GFP')
@@ -411,7 +420,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         rectangle('Position',PosRectinTF,'FaceColor',[1 0 0 0.2],'EdgeColor',[1 0 0 0.2]);
        
         % TOPOPLOTS
-        subplot(2,2,m+2); 
+        subplot(2,length(Fields),m+length(Fields)); 
         Low = round(MaxGFP.(Fields{m}).Pos - SDPeakGFP.(Fields{m}));
         High = round(MaxGFP.(Fields{m}).Pos + SDPeakGFP.(Fields{m}));
         topoplotIndie(mean(EEGTEMP(Low:High,:),1),Chanlocs);
@@ -423,39 +432,44 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         fprintf(fid,'%s\r\n',['Group-/Condition-averaged max GFP (in TF) = ' num2str(MaxGFP.(Fields{m}).Pos)]);
         
         %% Retrieving individual GFP averaged over the POI identified above
-
         % Write in the .txt output
-        fprintf(fid2,'\r\n%s\r\n','individual GFP averaged over the POI');
-        fprintf(fid,'\r\n%s\r\n',sprintf('LEVEL %d: %s',m,Fields{m}));
+%         fprintf(fid2,'\r\n%s\r\n',['individual GFP averaged over the POI: ' ...
+%             num2str(MaxGFP.(Fields{m}).Pos) ' ' num2str(SDPeakGFP.(Fields{m})) ...
+%             ' (mean +- 1SD)']);
+%         fprintf(fid2,'\r\n%s\r\n',sprintf('LEVEL %d: %s',m,Fields{m}));
         
-        % Retrieve the individual GFP averaged over the POI
-        % NEED TO TEST THIS !!!! 
-        LowBound = SDPeakGFP.(Fields{m}) - MaxGFP.(Fields{m}).Pos;
-        HighBound = SDPeakGFP.(Fields{m}) + MaxGFP.(Fields{m}).Pos;
-        AvgGFP = zeros(size(GFPData.(Levels{k}),2),1);
-        for r=1:size(GFPData.(Levels{k}),2)
-            AvgGFP(r) = mean(GFPData.(Levels{k})(LowBound:HighBound,r));
-        end
+        % Compute individual average GFP over the POI (+- 1 SD)
+        MaxGFP.MeanRange = [MaxGFP.MeanRange mean(GFPData.(Fields{m})(Low:High,:))];
+        MaxGFP.SDRange = [MaxGFP.SDRange std(GFPData.(Fields{m})(Low:High,:))];    
         
         % Fill in the .txt output
-        ToSave = [AllNames' num2cell(AvgGFP)];
-        for j=1:length(ToSave);fprintf(fid2,'%s - %d\r\n',ToSave{j,1},ToSave{j,2});end
-        fprintf(fid2,'\r\n');
+%         ToSave = [AllNames;num2cell(MaxGFP.MeanRange);num2cell(MaxGFP.SDRange)]';
+%         for j=1:length(ToSave);fprintf(fid2,'%s - %.4f %.4f\r\n',ToSave{j,1},ToSave{j,2}, ToSave{j,3});end
+%         fprintf(fid2,'\r\n');
     end
     
+    % Saving .mat file with results
+    save([OutputPath OutputFolder '\GFPResults_' CompN{1} '_' Method '_' date_name '.mat'],'MaxGFP')
+    
+    % Save in outputs in table and export to .xlsx file
+    MaxGFPms = MaxGFPList/(SamplingRate/1000)+Epoch(1);
+    TabOut = array2table([AllNames' LevelNames' num2cell([MaxGFPList MaxGFPms MaxGFP.MeanRange' MaxGFP.SDRange'])]);
+    TabOut.Properties.VariableNames = {'Files','Levels','MaxGFPTF','MaxGFPms','IndivMeanOverPOI','IndivSDOverPOI'};
+    writetable(TabOut,[OutputPath OutputFolder '\GFPResults' '_' Method '_' date_name '.xlsx'],'Sheet',CompN{1})
+    
     % Save figure 
-    FigName = [OutputPath '\' OutputFolder '\GFPPeak_' CompN{1} '_' Method '_' date_name '.png'];
+    FigName = [OutputPath OutputFolder '\GFPPeak_' CompN{1} '_' Method '_' date_name '.png'];
     fprintf(fid,'\r\n%s\r\n',['Related figure name: ' FigName]);
     saveas(Fig,FigName); close gcf; clear Fig;    
     
-    % Saving files and their respective component's peak GFP (in TF)
-    fprintf(fid,'\r\n%s\r\n','Filesnames and their respective component peak GFP (in TF)');
-    ToSave = [AllNames' num2cell(MaxGFPList)];
-    for j=1:length(ToSave);fprintf(fid,'%s - %d\r\n',ToSave{j,1},ToSave{j,2});end
-    fprintf(fid,'\r\n');
-    clear MaxGFPList;
+%     % Saving files and their respective component's peak GFP (in TF)
+%     fprintf(fid,'\r\n%s\r\n','Filesnames and their respective component peak GFP (in TF)');
+%     ToSave = [AllNames' num2cell(MaxGFPList)];
+%     for j=1:length(ToSave);fprintf(fid,'%s - %d\r\n',ToSave{j,1},ToSave{j,2});end
+%     fprintf(fid,'\r\n');
+%     clear MaxGFPList;
 end
 
 % Close txt file
 fclose(fid);
-fclose(fid2);
+% fclose(fid2);

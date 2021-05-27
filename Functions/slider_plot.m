@@ -35,7 +35,12 @@ function SliderCB(aSlider, EventData,EEGTEMP,Chanlocs,Param,TEMPGFP)
     
     % 1. Electrodes level data
     subplot(2,3,[1 2]); 
-    plot(EEGTEMP,'Color','k'); 
+    for t = 1:size(EEGTEMP,2)
+        Handles(t) = plot(EEGTEMP(:,t),...
+            'Color',Param.ColVect(t,:),'LineWidth',Param.lineWid(t)); 
+        hold on
+    end
+    hold off
     title('All electrodes');
     xlabel('Time (ms)'), ylabel('uV'); axis tight; Yl=ylim(gca);  
     set(gca,'XTick',Param.Ticks,'XTickLabel',num2cell(Param.XTStr)); 
@@ -45,6 +50,13 @@ function SliderCB(aSlider, EventData,EEGTEMP,Chanlocs,Param,TEMPGFP)
     PosRectinTF = [Param.TEMPCompinTF(1) Yl(1) Param.TEMPCompinTF(2)-Param.TEMPCompinTF(1) Yl(2)*0.1]; 
     rectangle('Position',PosRectinTF,'FaceColor',[0 0 1 0.2],'EdgeColor',[0 0 1 0.2]);
     
+    % Extract the handles that require legend entries
+    HandlesToLeg = Handles(Param.ElectToCol);
+
+    % Legend
+    Lgd = legend(HandlesToLeg,Param.LegendLabel); 
+    title(Lgd,'Electrode','Color','k');
+
     % 2. GFP
     subplot(2,3,[4 5]); plot(TEMPGFP, 'Color','k'); 
     title(sprintf('GFP (%f\\muV)',TEMPGFP(Value))); % axis tight;

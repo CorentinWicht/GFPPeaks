@@ -7,7 +7,6 @@
 % 02.06.2020
 
 % TO DO:
-% - The variable "TempElect" should change for each component!
 % - Do not let possibility to load different "Chanlocs", the files should
 % always be avg. referenced!! Thus, need to load an avg. ref. mat file of
 % EEGLAB chanlocs
@@ -46,9 +45,10 @@ if PromptIndivGFP(2)==1; Method='semi-automatic'; elseif PromptIndivGFP(2)==2; M
 root_folder = uigetdir(p2,'Choose the path of your most upper folder containing your files.');
 cd(root_folder)
 FileList = dir(['**/*' Extension]);
-OutputPath = strsplit(root_folder,'\');
-OutputPath = strcat(OutputPath(1:end-1),'\');
-OutputPath = strcat(OutputPath{:});
+% OutputPath = strsplit(root_folder,'\');
+% OutputPath = strcat(OutputPath(1:end-1),'\');
+% OutputPath = strcat(OutputPath{:});
+OutputPath = root_folder;
 
 % Sort FileList according to natural order
 [~, Idx] = natsort({FileList.name});
@@ -362,14 +362,13 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
                     ElseCol = lines(length(ElectToCol));
                     ColVect = repmat(128/255,size(EEGTEMP,2),3);
                     ColVect(ElectToCol,:) = ElseCol;
-                    lineWid(ElectToCol) = repmat(8,length(ElectToCol),1);
+                    lineWid(ElectToCol) = repmat(6,length(ElectToCol),1);
                 else
                     ColVect = zeros(size(EEGTEMP,2),3);
                 end
 
                 subplot(2,3,[1 2]);
                 for t = 1:size(EEGTEMP,2)
-%                     if ismember(t,ElectToCol)
                     Handles(t) = plot(EEGTEMP(:,t),...
                         'Color',ColVect(t,:),'LineWidth',lineWid(t)); 
                     hold on
@@ -392,8 +391,8 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
                 HandlesToLeg = Handles(ElectToCol);
                 
                 % Legend
-                LegendLabel = CompList(~cellfun(@(x) isempty(x),CompList(:,end)),end);
-                Lgd = legend(HandlesToLeg,LegendLabel); 
+                LegendLabel1 = CompList(~cellfun(@(x) isempty(x),CompList(:,end)),end);
+                Lgd = legend(HandlesToLeg,LegendLabel1); 
                 title(Lgd,'Electrode','Color','k');
             
                 % 2. GFP
@@ -412,8 +411,8 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
                 rectangle('Position',PosRectinTF,'FaceColor',[0 0 1 0.2],'EdgeColor',[0 0 1 0.2]);
 
                 % Legend
-                LegendLabel = {'GFP';CompN{1}};
-                Lgd = legend(LegendLabel); title(Lgd,'Component','Color','k');
+                LegendLabel2 = {'GFP';CompN{1}};
+                Lgd = legend(LegendLabel2); title(Lgd,'Component','Color','k');
                 
                 % Store parameters
                 Param.Ticks=Ticks;
@@ -422,6 +421,10 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
                 Param.Epoch=Epoch;
                 Param.SamplingRate=SamplingRate;
                 Param.CompN=CompN{1};
+                Param.ColVect = ColVect;
+                Param.lineWid = lineWid;
+                Param.LegendLabel = LegendLabel1;
+                Param.ElectToCol = ElectToCol;
                 
                 % 3. TOPOPLOTS
                 slider_plot(Fig,EEGTEMP,MaxPos,Chanlocs,Param,TEMPGFP)

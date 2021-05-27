@@ -248,11 +248,11 @@ for k=1:length(Fields) % For BS and/or WS category
                     % Load .ep(h) files
                     Path = [FileList(n).folder '\' FileList(n).name];
                     [numchannels,numtimeframes,samplingrate,thedata]=openeph(Path);
-                    WhichLev = find(contains(UniqueUnblinding,Unblinding(n,2))==1);
-                    EEGData.(Unblinding{n,2})(:,:,Pos(WhichLev)) = thedata; % Store in main database (new name!)
-                    Names.(Unblinding{n,2})(Pos(WhichLev),1) = Unblinding(n,1);
-                    Pos(WhichLev) = Pos(WhichLev) + 1;
-                    disp(['File ' FileList(n).name ' successfully loaded'])
+                    WhichLev = which(contains(UniqueUnblinding,);
+                    EEGData.(Unblinding{n,2})(:,:,Pos(n)) = thedata; % Store in main database (new name!)
+                    Names.(Unblinding{n,2})(Pos(n),1) = Unblinding(n,1);
+                    Pos(n) = Pos(n) + 1;
+                    disp(['File ' LevelsFilesList(n).name ' successfully loaded'])
                 end
             end
         end
@@ -336,19 +336,19 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     TEMPCompinTF = round(TEMPComp/1000*SamplingRate); % Convert to TimeFrames and round to nearest integer
     
     for k=1:length(Fields) % For each levels
-        for m=1:size(EEGData.(Fields{k}),3) % For each subject
-            EEGTEMP = squeeze(EEGData.(Fields{k})(:,:,m));
-            GFPData.(Fields{k})(:,m)=computegfp(EEGTEMP);
+        for m=1:size(EEGData.(Levels{k}),3) % For each subject
+            EEGTEMP = squeeze(EEGData.(Levels{k})(:,:,m));
+            GFPData.(Levels{k})(:,m)=computegfp(EEGTEMP);
 
             %% PEAK IDENTIFICATION ON INDIVIDUAL GFP
             if strcmpi(Method,'semi-automatic')
                 % Look for maximum/minimum inside Component bounds
-                TEMPGFP = GFPData.(Fields{k})(:,m);
+                TEMPGFP = GFPData.(Levels{k})(:,m);
                 MaxVal = max(TEMPGFP(TEMPCompinTF(1):TEMPCompinTF(2)));
                 MaxPos = find(TEMPGFP==MaxVal);
                 
                 Fig = figure('units','normalized','outerposition',[0 0 1 1]); % Initialize figure in full screen
-                File = strsplit(strrep(Names.(Fields{k}){m},'_','-'),'.'); 
+                File = strsplit(strrep(Names.(Levels{k}){m},'_','-'),'.'); 
                 Title = [CompN{1} ': ' Fields{k} ' ' File{1}]; % Main title (component: level_subject)
                   annotation('textbox',[.4 .5 .5 .5],'String',Title,'FitBoxToText',...
                   'on','FontSize',20,'EdgeColor','w');
@@ -424,7 +424,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
                 waitfor(p);  close gcf;
                 
                 % Store results
-                MaxIndivGFP.CompN{1}.(Fields{k})(m) = MaxGFPList{Pos,2}; 
+                MaxIndivGFP.CompN{1}.(Levels{k})(m) = MaxGFPList{Pos,2}; 
                 to_display{m,2} = MaxGFPList{Pos,2}; Numbers{Pos} = MaxGFPList{Pos,2};
                 Pos = Pos + 1;
                 clear Fig MaxGFPList;
@@ -479,7 +479,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         
         % Build structure by levels
         for k=1:length(Fields) 
-            MaxGFPStructTF.(Fields{k}) = MaxGFPList(contains(AllNames,Fields{k}));
+            MaxGFPStructTF.(Fields{k}) = MaxGFPList(contains(AllNames,Levels{k}));
         end
         
         % Compute mean GFP for each level

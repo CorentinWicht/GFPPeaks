@@ -274,19 +274,20 @@ end
 
 % Define the EEG components of interest
 % Default values for the GUI below 
-to_display = cell(4,3);
+to_display = cell(4,4);
 
 % Define Components and bounds
 ScreenSize=get(0,'ScreenSize');
 f = figure('Position', [ScreenSize(3)/2-500/2 ScreenSize(4)/2-500/2 600 600]);
 p = uitable('Parent', f,'Data',to_display,'ColumnEdit',true(1,size(to_display,2)),'ColumnName',...
-    {'Name','Lower bound (ms)','Upper bound (ms)'},'Position',[50 -100 500 400],...
+    {'Name','Lower bound (ms)','Upper bound (ms)','Electrode'},'Position',[50 -100 500 400],...
     'CellEditCallBack','CompList = get(gco,''Data'');');
 uicontrol('Style', 'text', 'Position', [60 350 450 130], 'String',...
         {['COMPONENTS DEFINITION' newline ''],['The definition of the Period(s) of Interest needs to be structured in the following way:'...
         newline '1st column = Name of the Component (e.g. N2)',...
         newline '2nd column = Corresponding lower bound (e.g. 200ms post-stim.)',...
-        newline '3rd column = Corresponding higher bound (e.g. 350ms post-stim.)']});
+        newline '3rd column = Corresponding higher bound (e.g. 350ms post-stim.)'],...
+        newline '4th column = Index for electrode of reference (will have a different colour on screen)'});
 % Wait for t to close until running the rest of the script
 waitfor(p)
 
@@ -354,16 +355,30 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
                   'on','FontSize',20,'EdgeColor','w');
                 
                 % 1. Electrodes level data
-                if any(EmptIdx); TempElect = [CompN(end) CompN(end)]; 
-                else; TempElect = CompN(end-2:end); 
+                % Color vector
+                lineWid = ones(size(EEGTEMP,2),1); % line width
+                if length(CompN)>3
+                    ElectToCol = str2double(CompList(~cellfun(@(x) isempty(x),CompList(:,end)),end));
+                    ElseCol = lines(length(ElectToCol));
+                    ColVect = repmat(128/255,size(EEGTEMP,2),3);
+                    ColVect(ElectToCol,:) = ElseCol;
+                    lineWid(ElectToCol) = repmat(8,length(ElectToCol),1);
+                else
+                    ColVect = zeros(size(EEGTEMP,2),3);
                 end
-                
-                subplot(2,3,[1 2]); 
-                plot(EEGTEMP, 'Color','k'); 
+
+                subplot(2,3,[1 2]);
+                for t = 1:size(EEGTEMP,2)
+%                     if ismember(t,ElectToCol)
+                    Handles(t) = plot(EEGTEMP(:,t),...
+                        'Color',ColVect(t,:),'LineWidth',lineWid(t)); 
+                    hold on
+                end
+                hold off
                 title('All electrodes'); % axis tight;
                 xlabel('Time (ms)'), ylabel('uV');
                 set(gca,'XTick',Ticks,'XTickLabel',num2cell(XTStr)); 
-                axis tight; Yl=ylim(gca); % retrieve auto y-limits      
+                axis tight; Yl=ylim(gca); % retrieve auto y-limits   
 
                 % Vertical line
                 PosinMS = round(MaxPos/SamplingRate*1000);
@@ -372,10 +387,19 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
 
                 PosRectinTF = [TEMPCompinTF(1) Yl(1) TEMPCompinTF(2)-TEMPCompinTF(1) Yl(2)*0.1]; 
                 rectangle('Position',PosRectinTF,'FaceColor',[0 0 1 0.2],'EdgeColor',[0 0 1 0.2]);
+                             
+                % Extract the handles that require legend entries
+                HandlesToLeg = Handles(ElectToCol);
+                
+                % Legend
+                LegendLabel = CompList(~cellfun(@(x) isempty(x),CompList(:,end)),end);
+                Lgd = legend(HandlesToLeg,LegendLabel); 
+                title(Lgd,'Electrode','Color','k');
             
                 % 2. GFP
                 subplot(2,3,[4 5]); plot(TEMPGFP, 'Color','k'); 
                 title('GFP'); % axis tight;
+                title(sprintf('GFP (%f\\muV)',TEMPGFP(MaxPos)));
                 axis tight; Yl=ylim(gca); % retrieve auto y-limits
                 xlabel('Time (ms)'), ylabel('GFP');
                 set(gca,'XTick',Ticks,'XTickLabel',num2cell(XTStr)); 

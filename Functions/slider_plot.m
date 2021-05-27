@@ -47,7 +47,7 @@ function SliderCB(aSlider, EventData,EEGTEMP,Chanlocs,Param,TEMPGFP)
     
     % 2. GFP
     subplot(2,3,[4 5]); plot(TEMPGFP, 'Color','k'); 
-    title('GFP'); % axis tight;
+    title(sprintf('GFP (%f\\muV)',TEMPGFP(Value))); % axis tight;
     axis tight; Yl=ylim(gca); % retrieve auto y-limits
     xlabel('Time (ms)'), ylabel('GFP');
     set(gca,'XTick',Param.Ticks,'XTickLabel',num2cell(Param.XTStr));

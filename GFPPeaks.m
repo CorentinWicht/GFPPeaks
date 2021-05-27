@@ -323,7 +323,7 @@ fprintf(fid,'%s\r\n',['Peak identification method used : ' Method]);
 for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     
     % Initialize variables
-    Pos = 1; Numbers = repmat({[]},[size(AllNames,2) 1]);
+    Pos = []; Numbers = repmat({[]},[size(AllNames,2) 1]);
     
     % Remove empty lines and store data for the current component
     EmptIdx = ~cellfun(@(x) isempty(x),CompList(n,:));
@@ -430,6 +430,9 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
                 slider_plot(Fig,EEGTEMP,MaxPos,Chanlocs,Param,TEMPGFP)
                 
                 % RESPONSE TABLE
+                % Finding position of current file in table
+                Pos = find(ismember(AllNames',Names.(Fields{k}){m})==1);
+                
                 % Matrix to integrate in the following uitable
                 Numbers{Pos} = MaxPos;
                 to_display = [AllNames',Numbers];
@@ -453,7 +456,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
                 % Store results
                 MaxIndivGFP.CompN{1}.(Fields{k})(m) = MaxGFPList{Pos,2}; 
                 to_display{m,2} = MaxGFPList{Pos,2}; Numbers{Pos} = MaxGFPList{Pos,2};
-                Pos = Pos + 1;
+%                 Pos = Pos + 1;
                 clear Fig MaxGFPList;
             end
         end

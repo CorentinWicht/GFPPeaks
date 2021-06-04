@@ -32,14 +32,15 @@ addpath(genpath([p2 '\Functions']));
 % Format of files to load and method to apply
 PromptIndivGFP = inputdlg({['Extension of the files to be loaded:' newline ...
     '1) ep' newline '2) eph'],['Method to use to identify individual GFP peaks' newline ...
-    '1) semi-automatic' newline '2) manual']},'Settings',1,{'1','1'});
+    '1) semi-automatic' newline '2) manual' newline '3) Load previous data']},'Settings',1,{'1','1'});
 PromptIndivGFP = str2double(PromptIndivGFP);
 
 % Extension
 if PromptIndivGFP(1)==1; Extension='.ep'; elseif PromptIndivGFP(1)==2; Extension='.eph'; end
 
 % Method
-if PromptIndivGFP(2)==1; Method='semi-automatic'; elseif PromptIndivGFP(2)==2; Method='manual'; end
+if PromptIndivGFP(2)==1; Method='semi-automatic'; elseif PromptIndivGFP(2)==2; Method='manual'; 
+elseif PromptIndivGFP(2)==3; Method='load'; end
 
 % Path of your upper folder containing your .EP data
 root_folder = uigetdir(p2,'Choose the path of your most upper folder containing your files.');
@@ -204,6 +205,7 @@ end
 
 % Load each .ep file and store it in structure according to design
 EEGData = []; Names = []; Fields = fieldnames(Design); 
+if strcmpi(PromptBlind,'No'); Unblinding = AllNames'; end
 for k=1:length(Fields) % For BS and/or WS category
     Factors = fieldnames(Design.(Fields{k}));
     for j=1:length(Factors) % For each factor
@@ -222,6 +224,10 @@ for k=1:length(Fields) % For BS and/or WS category
                     EEGData.(Levels{m})(:,:,n) = thedata; % Store in main database
                     Names.(Levels{m})(n,1) = {LevelsFilesList(n).name};
                     disp(['File ' LevelsFilesList(n).name ' successfully loaded'])
+                    
+                    % For excel output
+                    Pos = find(contains(Unblinding(:,1),LevelsFilesList(n).name));
+                    Unblinding{Pos,j+1} = Levels{m}; 
                 end
             end
             
@@ -274,20 +280,21 @@ end
 
 % Define the EEG components of interest
 % Default values for the GUI below 
-to_display = cell(4,4);
+to_display = cell(4,5);
 
 % Define Components and bounds
 ScreenSize=get(0,'ScreenSize');
 f = figure('Position', [ScreenSize(3)/2-500/2 ScreenSize(4)/2-500/2 600 600]);
 p = uitable('Parent', f,'Data',to_display,'ColumnEdit',true(1,size(to_display,2)),'ColumnName',...
-    {'Name','Lower bound (ms)','Upper bound (ms)','Electrode'},'Position',[50 -100 500 400],...
+    {'Name','Lower bound (ms)','Upper bound (ms)','Electrode Visual', 'Cluster of electrodes'},'Position',[50 -100 500 400],...
     'CellEditCallBack','CompList = get(gco,''Data'');');
 uicontrol('Style', 'text', 'Position', [60 350 450 130], 'String',...
         {['COMPONENTS DEFINITION' newline ''],['The definition of the Period(s) of Interest needs to be structured in the following way:'...
         newline '1st column = Name of the Component (e.g. N2)',...
         newline '2nd column = Corresponding lower bound (e.g. 200ms post-stim.)',...
-        newline '3rd column = Corresponding higher bound (e.g. 350ms post-stim.)'],...
-        newline '4th column = Index for electrode of reference (will have a different colour on screen)'});
+        newline '3rd column = Corresponding higher bound (e.g. 350ms post-stim.)',...
+        newline '4th column = Index for electrode(s) of interest for each component (visualization purpose)',...
+        newline '5th column = Cluster of electrodes to compute average voltage amplitude (leave empty if all electrodes)']});
 % Wait for t to close until running the rest of the script
 waitfor(p)
 
@@ -336,6 +343,15 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     end
     TEMPCompinTF = round(TEMPComp/1000*SamplingRate); % Convert to TimeFrames and round to nearest integer
     
+    % Electrodes cluster
+    if ~isempty(CompN{end})
+        ElectClust = str2num(CompN{end});
+    else
+        TEMPFields = fieldnames(EEGData);
+        ElectClust = 1:size(EEGData.(TEMPFields{1}),2); % all electrodes
+    end
+    
+    
     for k=1:length(Fields) % For each levels
         for m=1:size(EEGData.(Fields{k}),3) % For each subject
             EEGTEMP = squeeze(EEGData.(Fields{k})(:,:,m));
@@ -345,8 +361,8 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
             if strcmpi(Method,'semi-automatic')
                 % Look for maximum/minimum inside Component bounds
                 TEMPGFP = GFPData.(Fields{k})(:,m);
-                MaxVal = max(TEMPGFP(TEMPCompinTF(1):TEMPCompinTF(2)));
-                MaxPos = find(TEMPGFP==MaxVal);
+                MaxValGFP = max(TEMPGFP(TEMPCompinTF(1):TEMPCompinTF(2)));
+                MaxPos = find(TEMPGFP==MaxValGFP);
                 
                 Fig = figure('units','normalized','outerposition',[0 0 1 1]); % Initialize figure in full screen
                 File = strsplit(strrep(Names.(Fields{k}){m},'_','-'),'.'); 
@@ -499,7 +515,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         % Convert from TF to ms (round to nearest integer)
         MaxGFPList = cellfun(@(x) str2double(x),MaxGFPList(:,2));
         OutOfBounds = AllNames(MaxGFPList<TEMPCompinTF(1) | MaxGFPList>TEMPCompinTF(2))';
-        MaxGFPListMS = round(MaxGFPList/1024*1000 + Epoch(1));
+%         MaxGFPListMS = round(MaxGFPList/1024*1000 + Epoch(1));
         
         % Warning for files that are out of component's bounds  
         if ~isempty(OutOfBounds)
@@ -509,7 +525,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         
         % Build structure by levels
         for k=1:length(Fields) 
-            MaxGFPStructTF.(Fields{k}) = MaxGFPList(contains(AllNames,Fields{k}));
+            MaxGFPStructTF.(Fields{k}) = MaxGFPList(contains(Unblinding(:,2),Fields{k}));
         end
         
         % Compute mean GFP for each level
@@ -517,6 +533,14 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
 
         % Compute SD over individual GFP for each level
         SDPeakGFP = structfun(@(x) std(x),MaxGFPStructTF,'UniformOutput',0);
+        
+    % Loading previous analyses
+    elseif strcmpi(Method,'Load')
+        
+        [File, Path] = uigetfile('*.mat',['Load previous data for component: ' ...
+            CompN{1}]);
+        VarLoad = {'MeanPeakGFP','MeanGFP','SDPeakGFP','MaxGFPList'};
+        load([Path File],VarLoad{:})
     end
 
     %% PEAK IDENTIFICATION ON MEAN GFP
@@ -528,6 +552,18 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     % Initialize empty fields
     MaxGFP.MeanRange = [];
     MaxGFP.SDRange = [];
+    MaxVolt.MeanRange = [];
+    MaxVolt.SDRange = [];
+    
+    % Min & Max GFP value across levels
+    MinValGFP = min(cell2mat(struct2cell(MeanGFP)));
+    MaxValGFP = max(cell2mat(struct2cell(MeanGFP)));
+    
+    % Min & Max GFP value across levels
+    MinValVolt = min(cell2mat(struct2cell(...
+        structfun(@(x) mean(x(:,ElectClust,:),[2,3]), EEGData, 'UniformOutput', 0))));
+    MaxValVolt = max(cell2mat(struct2cell(...
+        structfun(@(x) mean(x(:,ElectClust,:),[2,3]), EEGData, 'UniformOutput', 0))));
     
     % For .txt output
     fprintf(fid,'\r\n%s\r\n',['----' CompN{1} ' COMPONENT [' ...
@@ -536,34 +572,60 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
 %         num2str(TEMPCompinTF(1)) '-'  num2str(TEMPCompinTF(2)) ' TF]'  '----']);
     
     for m=1:length(Fields) % For each level
+        
+        % Initialize data
         MaxGFP.(Fields{m}).Pos = round(MeanPeakGFP.(Fields{m}));
         MaxGFP.(Fields{m}).Value = MeanGFP.(Fields{m})(MaxGFP.(Fields{m}).Pos);
+        EEGTEMP = squeeze(mean(EEGData.(Fields{m})(:,:,:),3));
 
         %% PLOTTING
         
-        % Main plot and parameters
-        subplot(2,length(Fields),m)
-        plot(MeanGFP.(Levels{m}),'Color','k');axis tight;
-        ylim([0 max(MeanGFP.(Levels{m}))])
-        xlabel('Time (ms)'), ylabel('Mean GFP')
-        title(sprintf('%s',strrep(Fields{m},'_','-'))) 
-        set(gca,'XTick',Ticks,'XTickLabel',num2cell(XTStr));
+        % 1) VOLTAGE AMPLITUDE PLOT AND PARAMETERS
+        subplot(3,length(Fields),m)
+        PlotDat = squeeze(mean(EEGData.(Fields{m})(:,ElectClust,:),[2,3]));
+        plot(PlotDat,'Color','k');axis tight;
+        xlabel('Time (ms)'), ylabel('Mean Voltage Amplitude [\muV]')
+        set(gca,'XTick',Ticks,'XTickLabel',num2cell(XTStr),'ylim',[MinValVolt MaxValVolt]);
         
         % Vertical line (Peak)
-        PosinMS = round(MaxGFP.(Fields{m}).Pos/SamplingRate*1000);
+        PosinTF = MaxGFP.(Fields{m}).Pos;
+        PosinMS = round(PosinTF/SamplingRate*1000);
+        LabelValue = [num2str(PosinMS + Epoch(1)) 'ms ' '[' num2str(PlotDat(PosinTF)) ']'];
+        xline(MaxGFP.(Fields{m}).Pos,'-',LabelValue,'Color',[1 0 0],'LabelVerticalAlignment','bottom');
+        
+        % Patches (+- 1SD around the peak)
+        TEMP = structfun(@(x) squeeze(mean(x(:,ElectClust,:),2)),EEGData,'UniformOutput',0);
+        MaxTEMP = cell2mat(struct2cell(structfun(@(x) max(x,[],[1,2]),TEMP,'UniformOutput',0)));
+        MinTEMP = cell2mat(struct2cell(structfun(@(x) min(x,[],[1,2]),TEMP,'UniformOutput',0)));
+        PosRectinTF = [PosinTF-SDPeakGFP.(Fields{m}) min(MinTEMP) ...
+            2*SDPeakGFP.(Fields{m}) max(MaxTEMP)];
+        rectangle('Position',PosRectinTF,'FaceColor',[1 0 0 0.2],'EdgeColor',[1 0 0 0.2]);
+        
+        % 2) GFP PLOT AND PARAMETERS
+        subplot(3,length(Fields),m+length(Fields))
+        plot(MeanGFP.(Fields{m}),'Color','k');axis tight;
+        xlabel('Time (ms)'), ylabel('Mean GFP')
+        title(sprintf('%s',strrep(Fields{m},'_','-'))) 
+        set(gca,'XTick',Ticks,'XTickLabel',num2cell(XTStr),'ylim',[MinValGFP MaxValGFP]);
+        
+        % Vertical line (Peak)
+        PosinTF = MaxGFP.(Fields{m}).Pos;
+        PosinMS = round(PosinTF/SamplingRate*1000);
         LabelValue = [num2str(PosinMS + Epoch(1)) 'ms ' '[' num2str(MaxGFP.(Fields{m}).Value) ']'];
         xline(MaxGFP.(Fields{m}).Pos,'-',LabelValue,'Color',[1 0 0],'LabelVerticalAlignment','bottom');
         
         % Patches (+- 1SD around the peak)
-        PosRectinTF = [PosinMS-SDPeakGFP.(Fields{m}) 0 2*SDPeakGFP.(Fields{m}) max(MeanPeakGFP.(Fields{m}))];
+        PosRectinTF = [PosinTF-SDPeakGFP.(Fields{m}) 0 2*SDPeakGFP.(Fields{m}) max(MeanPeakGFP.(Fields{m}))];
         rectangle('Position',PosRectinTF,'FaceColor',[1 0 0 0.2],'EdgeColor',[1 0 0 0.2]);
-       
-        % TOPOPLOTS
-        subplot(2,length(Fields),m+length(Fields)); 
+        
+        % 3) TOPOPLOTS
+        subplot(3,length(Fields),m+2*length(Fields)); 
         Low = round(MaxGFP.(Fields{m}).Pos - SDPeakGFP.(Fields{m}));
         High = round(MaxGFP.(Fields{m}).Pos + SDPeakGFP.(Fields{m}));
         topoplotIndie(mean(EEGTEMP(Low:High,:),1),Chanlocs);
         title(sprintf('Averaged topography between %d and %d TF',Low,High));
+        caxis([MinValVolt MaxValVolt]) % Same colorbar limits for all graphs
+        colorbar
         
         % Save results in .txt file for each level        
         fprintf(fid,'\r\n%s\r\n',sprintf('LEVEL %d: %s',m,Fields{m}));
@@ -581,6 +643,12 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         MaxGFP.MeanRange = [MaxGFP.MeanRange mean(GFPData.(Fields{m})(Low:High,:))];
         MaxGFP.SDRange = [MaxGFP.SDRange std(GFPData.(Fields{m})(Low:High,:))];    
         
+        % Compute individual average voltage amplitude over the POI (+- 1
+        % SD) and electrodes cluster of interest
+        TEMPDat = squeeze(mean(EEGData.(Fields{m})(Low:High,ElectClust,:),2)); 
+        MaxVolt.MeanRange = [MaxVolt.MeanRange mean(TEMPDat)];
+        MaxVolt.SDRange = [MaxVolt.SDRange std(TEMPDat)];
+        
         % Fill in the .txt output
 %         ToSave = [AllNames;num2cell(MaxGFP.MeanRange);num2cell(MaxGFP.SDRange)]';
 %         for j=1:length(ToSave);fprintf(fid2,'%s - %.4f %.4f\r\n',ToSave{j,1},ToSave{j,2}, ToSave{j,3});end
@@ -588,16 +656,19 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     end
     
     % Saving .mat file with results
-    save([OutputPath OutputFolder '\GFPResults_' CompN{1} '_' Method '_' date_name '.mat'],'MaxGFP')
+    save([OutputPath '\' OutputFolder '\GFPResults_' CompN{1} '_' Method '_' date_name '.mat'],'MaxGFP',...
+        'MeanPeakGFP','MeanGFP','SDPeakGFP','MaxGFPList')
     
     % Save in outputs in table and export to .xlsx file
     MaxGFPms = MaxGFPList/(SamplingRate/1000)+Epoch(1);
-    TabOut = array2table([AllNames' LevelNames' num2cell([MaxGFPList MaxGFPms MaxGFP.MeanRange' MaxGFP.SDRange'])]);
-    TabOut.Properties.VariableNames = {'Files','Levels','MaxGFPTF','MaxGFPms','IndivMeanOverPOI','IndivSDOverPOI'};
-    writetable(TabOut,[OutputPath OutputFolder '\GFPResults' '_' Method '_' date_name '.xlsx'],'Sheet',CompN{1})
+    TabOut = array2table([Unblinding num2cell([MaxGFPList MaxGFPms MaxGFP.MeanRange' MaxGFP.SDRange' ...
+        MaxVolt.MeanRange' MaxVolt.SDRange'])]);
+    TabOut.Properties.VariableNames = {'Files','Levels','MaxGFPTF','MaxGFPms',...
+        'IndivGFPMeanOverPOI','IndivGFPSDOverPOI','IndivVoltageMeanOverPOIClust','IndivVoltageSDOverPOIClust'};
+    writetable(TabOut,[OutputPath '\' OutputFolder '\GFPResults' '_' Method '_' date_name '.xlsx'],'Sheet',CompN{1})
     
     % Save figure 
-    FigName = [OutputPath OutputFolder '\GFPPeak_' CompN{1} '_' Method '_' date_name '.png'];
+    FigName = [OutputPath '\' OutputFolder '\GFPPeak_' CompN{1} '_' Method '_' date_name '.png'];
     fprintf(fid,'\r\n%s\r\n',['Related figure name: ' FigName]);
     saveas(Fig,FigName); close gcf; clear Fig;    
     

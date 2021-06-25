@@ -19,14 +19,15 @@ C.A. Wicht, GFPPeaks, (2020), GitHub repository, https://github.com/CorentinWich
     + [1. Files Extensions and Processing Mode](#1-files-extensions-and-processing-mode)
     + [2. Loading Files](#2-loading-files)
     + [3. Design Definition](#3-design-definition)
-    + [4. Data Files Selection](#4-data-files-selection)
-    + [5. Include Files](#5-include-files)
-    + [6. ERP Parameters](#6-erp-parameters)
-    + [7. ERP Components Definition](#7-erp-components-definition)
-    + [8. GFPPeaks Windows](#8-gfppeaks-windows)
-      - [8.1 Main Window](#81-main-window)
-      - [8.2 Data Table](#82-data-table)
-    + [9. Exported Figure](#9-exported-figure)
+    + [4. Unblinding](#3-unblinding)
+    + [5. Data Files Selection](#4-data-files-selection)
+    + [6. Include Files](#5-include-files)
+    + [7. ERP Parameters](#6-erp-parameters)
+    + [8. ERP Components Definition](#7-erp-components-definition)
+    + [9. GFPPeaks Windows](#8-gfppeaks-windows)
+      - [9.1 Main Window](#81-main-window)
+      - [9.2 Data Table](#82-data-table)
+    + [10. Exported Figure](#9-exported-figure)
   * [Author](#author)
   * [License](#license)
   * [Acknowledgements](#acknowledgements)
@@ -118,14 +119,14 @@ You further need to determine whether you  want to replace the factor's levels n
 **CAREFUL NOT TO CLOSE THE EXCEL FILE, JUST PRESS "OK" WHEN DONE**
 
 
-### 4. Data Files Selection
+### 5. Data Files Selection
 
 ![](tools/screenshots/RestrictData.png)
 
 Here you have the possibility whether you would like to process all the data in the folder path you provided in [Chapter 1](#1-loading-files) or only a subset of the files. \
 
 
-### 5. Include Files
+### 6. Include Files
 
 ![](tools/screenshots/IncludeFiles.png)
 
@@ -137,7 +138,7 @@ Close the window once you are satisfied with your choice.
 In MATLAB's command window you will see the list of correctly loaded files according to your selection in the previous prompt.
 
 
-### 6. ERP Parameters
+### 7. ERP Parameters
 
 ![](tools/screenshots/ERPParams.png)
 
@@ -148,7 +149,7 @@ In this prompt you need to:
 3) Define a folder name where to save the results (e.g. "Output").
 ```
 
-### 7. ERP Components Definition
+### 8. ERP Components Definition
 
 ![](tools/screenshots/ComponentsDef.png)
 
@@ -164,8 +165,8 @@ Column 3: define the upper bound in ms for the component of interest (e.g. 350ms
 These informations will be used in the GFP peaks main display in [Chapter 8.1](#81-main-window)
 
 
-### 8. GFPPeaks Windows
-#### 8.1 Main Window
+### 9. GFPPeaks Windows
+#### 9.1 Main Window
 
 ![](tools/screenshots/MainWindow.png)
 
@@ -184,7 +185,7 @@ On the far right you will find the topography at the GFP peak (indicated in TF i
 You have the possibility to use the slide bar below to inspect the topography of the whole ERP period while this will also adjust the vertical line in all other graphs.
 
 
-#### 8.2 Data Table
+#### 9.2 Data Table
 
 ![](tools/screenshots/GFPPeakData.png)
 
@@ -197,7 +198,7 @@ For the semi-automatic method, either you leave the prefilled value if you think
 
 **Once you are satisfied with your results you can close the data table and the results will be saved**.
 
-### 9. Exported Figure
+### 10. Exported Figure
 
 ![](tools/screenshots/Results.png)
 

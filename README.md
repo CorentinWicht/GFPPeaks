@@ -51,9 +51,9 @@ You will find below a step by step explanation on how to run each script in MATL
 
 You can define first define the extension of the files you would like to load (currently .ep or .eph). 
 
-Then, you can choose between a : \
-1) semi-automated \
-2) manual processing modes \
+Then, you can choose between a : 
+1) semi-automated 
+2) manual processing modes 
 3) or loading previous data \
 The semi-automated method looks for the GFP peak inside each component's upper and lower bounds as defined in [Chapter 7](#7-erp-components-definition), *see* [Chapter 8.1](#81-main-window) *for an example of the main GFP Peaks window.* \
 The manual method requires you to enter manually the GFP peaks for each files (identified for e.g. with CARTOOL) in the table detailed in [Chapter 8.2](#82-data-table). 

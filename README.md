@@ -123,7 +123,7 @@ You further need to determine whether you  want to replace the factor's levels n
 
 ![](tools/screenshots/RestrictData.png)
 
-Here you have the possibility whether you would like to process all the data in the folder path you provided in [Chapter 1](#1-loading-files) or only a subset of the files. \
+Here you have the possibility whether you would like to process all the data in the folder path you provided in [Chapter 1](#1-files-extensions-and-processing-mode) or only a subset of the files. \
 
 
 ### 6. Include Files
@@ -194,7 +194,7 @@ You have the possibility to use the slide bar below to inspect the topography of
 This table will popup next the main figure from [Chapter 9.1](#91-main-window). \
 **⚠️ DO NOT CLOSE THIS TABLE BEFORE YOU ARE FINISHED WITH THE CURRENT FILE ⚠️**.
 
-The GFP peak for the current file will be prefilled if you selected the semi-automatic method while the table will be completely empty if you selected the manual method (*see* [Chapter 2](#2-processing-mode)).
+The GFP peak for the current file will be prefilled if you selected the semi-automatic method while the table will be completely empty if you selected the manual method (*see* [Chapter 2](#2-loading-files)).
 
 For the semi-automatic method, either you leave the prefilled value if you think it is correct or you can change it manually. \
 

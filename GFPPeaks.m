@@ -374,7 +374,10 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
                 % Color vector
                 lineWid = ones(size(EEGTEMP,2),1); % line width
                 if length(CompN)>3
-                    ElectToCol = str2double(CompList(~cellfun(@(x) isempty(x),CompList(:,end)),end));
+%                     ElectToCol = str2double(CompList(~cellfun(@(x) isempty(x),CompList(:,end)),end));
+                    str = CompList(~cellfun(@(x) isempty(x),CompList(:,end-1)),end-1);
+                    ElectToCol = regexp(str,'(-)?\d+(\.\d+)?(e(-|+)\d+)?','match');
+                    ElectToCol = str2double(ElectToCol{:});
                     ElseCol = lines(length(ElectToCol));
                     ColVect = repmat(128/255,size(EEGTEMP,2),3);
                     ColVect(ElectToCol,:) = ElseCol;

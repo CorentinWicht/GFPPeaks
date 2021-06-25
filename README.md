@@ -56,8 +56,8 @@ Then, you can choose between a :
 1) semi-automated 
 2) manual processing modes 
 3) or loading previous data \
-The semi-automated method looks for the GFP peak inside each component's upper and lower bounds as defined in [Chapter 7](#7-erp-components-definition), *see* [Chapter 8.1](#81-main-window) *for an example of the main GFP Peaks window.* \
-The manual method requires you to enter manually the GFP peaks for each files (identified for e.g. with CARTOOL) in the table detailed in [Chapter 8.2](#82-data-table). 
+The semi-automated method looks for the GFP peak inside each component's upper and lower bounds as defined in [Chapter 8](#8-erp-components-definition), *see* [Chapter 9.1](#91-main-window) *for an example of the main GFP Peaks window.* \
+The manual method requires you to enter manually the GFP peaks for each files (identified for e.g. with CARTOOL) in the table detailed in [Chapter 9.2](#92-data-table). 
 Loading data will require you to have ran the script previously to get the following .mat file(s):
 
 ![](tools/screenshots/LoadMAT.png)
@@ -164,7 +164,7 @@ Column 4: determine the channel number which needs to be visually higlighted (ma
 Column 5: determine if subset of electrodes need to be cluster to compute the average voltage amplitude (empty = all electrodes)
 ```
 
-These informations will be used in the GFP peaks main display in [Chapter 8.1](#81-main-window)
+These informations will be used in the GFP peaks main display in [Chapter 9.1](#91-main-window)
 
 
 ### 9. GFPPeaks Windows
@@ -172,7 +172,7 @@ These informations will be used in the GFP peaks main display in [Chapter 8.1](#
 
 ![](tools/screenshots/MainWindow.png)
 
-This is the main window which will enable you to determine whether the preselected GFP peak in the data table (*see* [Chapter 8.2](#82-data-table)) is correct. \
+This is the main window which will enable you to determine whether the preselected GFP peak in the data table (*see* [Chapter 9.2](#92-data-table)) is correct. \
 The window displays *from left to right, top to bottom*:
 ```
 1) The ERP including all channels (each channel is represented as one line and electrodes selected for visualisation are highlighted in colors) [top left].
@@ -191,7 +191,7 @@ You have the possibility to use the slide bar below to inspect the topography of
 
 ![](tools/screenshots/GFPPeakData.png)
 
-This table will popup next the main figure from [Chapter 8.1](#81-main-window). \
+This table will popup next the main figure from [Chapter 9.1](#91-main-window). \
 **⚠️ DO NOT CLOSE THIS TABLE BEFORE YOU ARE FINISHED WITH THE CURRENT FILE ⚠️**.
 
 The GFP peak for the current file will be prefilled if you selected the semi-automatic method while the table will be completely empty if you selected the manual method (*see* [Chapter 2](#2-processing-mode)).
@@ -204,7 +204,7 @@ For the semi-automatic method, either you leave the prefilled value if you think
 
 ![](tools/screenshots/Results.png)
 
-You are now done with the script and based on what you gave in [Chapter 6](#6-erp-parameters) as folder name for the outputs, you fill find the figure above.\
+You are now done with the script and based on what you gave in [Chapter 7](#7-erp-parameters) as folder name for the outputs, you fill find the figure above.\
 This figure shows the mean GFP activity for the provided ERP epoch, separated by conditions/groups (i.e. depending on your design). \
 The vertical red line represents the peak (i.e. maximum) of the mean of each individual GFP, while the red rectangle represents +- 1 Standard Deviation (SD) over the each individual GFP.\
 Finally, below the GFP graph you will find the topography averaged over the period included in +- 1 Standard Deviation (SD) around the mean peak (i.e. time range of averaging indicated in TF in the title).

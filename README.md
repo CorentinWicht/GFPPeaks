@@ -160,6 +160,8 @@ Each column should be filled accordingly:
 Column 1: Type in the name of the component (e.g. N2)
 Column 2: Define the lower bound in ms for the component of interest (e.g. 200ms)
 Column 3: define the upper bound in ms for the component of interest (e.g. 350ms)
+Column 4: determine the channel number which needs to be visually higlighted (may be usefull for the identification of specific components based on topography)
+Column 5: determine if subset of electrodes need to be cluster to compute the average voltage amplitude (empty = all electrodes)
 ```
 
 These informations will be used in the GFP peaks main display in [Chapter 8.1](#81-main-window)
@@ -173,7 +175,7 @@ These informations will be used in the GFP peaks main display in [Chapter 8.1](#
 This is the main window which will enable you to determine whether the preselected GFP peak in the data table (*see* [Chapter 8.2](#82-data-table)) is correct. \
 The window displays *from left to right, top to bottom*:
 ```
-1) The ERP including all channels (each channel is represented as one line) [top left].
+1) The ERP including all channels (each channel is represented as one line and electrodes selected for visualisation are highlighted in colors) [top left].
 2) The GFP activity for epoch of interest [bottom left].
 3) The topographical plot (topoplot) [right].
 ```

@@ -51,9 +51,15 @@ You will find below a step by step explanation on how to run each script in MATL
 
 You can define first define the extension of the files you would like to load (currently .ep or .eph). 
 
-Then, you can choose between a semi-automated or manual processing modes. \
+Then, you can choose between a : \
+1) semi-automated \
+2) manual processing modes \
+3) or loading previous data \
 The semi-automated method looks for the GFP peak inside each component's upper and lower bounds as defined in [Chapter 7](#7-erp-components-definition), *see* [Chapter 8.1](#81-main-window) *for an example of the main GFP Peaks window.* \
 The manual method requires you to enter manually the GFP peaks for each files (identified for e.g. with CARTOOL) in the table detailed in [Chapter 8.2](#82-data-table). 
+Loading data will require you to have ran the script previously to get the following .mat file(s):
+
+![](tools/screenshots/LoadMAT.png)
 
 
 ### 2. Loading Files
@@ -76,20 +82,40 @@ These are the designs that are currently accepted:
 * 1 between- & 1 within-subjects factors
 * 2 between-subjects factors
 ```
-There can only be **up to 2 levels for each factor !**
+There can only be **up to 3 levels for each factor !**
 
 There is already an example that shows you how to fill the first two columns, namely on the... :
 ```
 * First line you should indicate whether Factor1 is a Between-subjects (B) or Within-subjects (W) factor
 * Second line you should give a name to the Factor
-* Third and fourth lines you need to define the name of each levels.\
+* Third and + lines you need to define the name of each levels.\
 ```
-**The last point is case-sensitive since the name you pick as levels should match either a pattern in your EEG files or the name of subfolders in which you separated the files.**
+**This is case-sensitive since the name you pick as levels should match either a pattern in your EEG files or the name of subfolders in which you stored the files.**
 
 Additionally, you have the possibility to ignore specific `folder(s)` and/or `file(s)` that are inside the EEG files-containing upper folder.\
 For example, if you would like to ignore every EEG files that contains the pattern `_EXCLUDE`, just write this pattern in the first box under the `IgnoreFiles` header.
 
 **Once you are done, press on the cross `X` on the top-right corner and the code will resume**
+
+### 4. Unblinding
+
+![](tools/screenshots/Unblinding.png)
+
+Since the individual GFP peaks will be averaged for each factor's level, you can here unblind the conditions assignment.
+
+
+![](tools/screenshots/AllIndivUnblind.png)
+
+You further need to determine whether you  want to replace the factor's levels names by:
+1) their unblinded names for all files (All):
+
+![](tools/screenshots/AllUnblind.png)
+
+2) or each individual file need to be renamed separately (Individual, ! requires Excel !):
+
+![](tools/screenshots/ExcelUnblind.png)
+
+**CAREFUL NOT TO CLOSE THE EXCEL FILE, JUST PRESS "OK" WHEN DONE**
 
 
 ### 4. Data Files Selection

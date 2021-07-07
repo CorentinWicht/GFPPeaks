@@ -86,8 +86,8 @@ end
 
 % Removing files/folders if specified
 if nnz(~cellfun('isempty',(DesignList(:,3)))) % folders
-    for k=1:sum(~cellfun('isempty',(DesignList(:,4))))
-        FileList = FileList(~contains({FileList.folder},DesignList{k,4}));
+    for k=1:sum(~cellfun('isempty',(DesignList(:,3))))
+        FileList = FileList(~contains({FileList.folder},DesignList{k,3}));
     end
 elseif nnz(~cellfun('isempty',(DesignList(:,4)))) % files
     for k=1:sum(~cellfun('isempty',(DesignList(:,4))))
@@ -158,7 +158,7 @@ elseif strcmpi(PromptBlind,'Individual')
     eS=eF.ActiveSheet;
     e.visible = 1; % If you want Excel visible.
     
-    % Message box stoping code execution
+%     % Message box stoping code execution
     MessageBox('The code will continue once you press OK','Wait for user input',30,250,70)
     
     % edit sheet

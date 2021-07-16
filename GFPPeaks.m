@@ -161,10 +161,13 @@ elseif strcmpi(PromptBlind,'Individual')
 %     % Message box stoping code execution
     MessageBox('The code will continue once you press OK','Wait for user input',30,250,70)
     
-    % edit sheet
-    eF.Save;
-    eF.Close; % close the file
-    e.Quit; % close Excel entirely
+    try % to avoid errors if the excel file was saved/closed before the message box
+        % edit sheet
+        eF.Save;
+        eF.Close; % close the file
+        e.Quit; % close Excel entirely
+    catch
+    end
     
     % Load the data and then delete the excel file
     Unblinding = readcell([pwd '\IndividualUnblinding.xlsx']);
@@ -456,7 +459,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
                 Numbers{Pos} = MaxPos;
                 to_display = [AllNames',Numbers];
 
-                 % Select folders on which to apply analyses
+                % Table enabling to adjust the preselected value
                 f = figure('Position', [125 125 400 400]);
                 p=uitable('Parent', f,'Data',to_display,'ColumnEdit',[false true],'ColumnName',...
                     {'Files', 'Peak GFP (in TF)'},'ColumnWidth', {180,100},'Position',[10 20 350 300],...
@@ -475,7 +478,6 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
                 % Store results
                 MaxIndivGFP.(CompN{1}).(Fields{k})(m) = MaxGFPList{Pos,2}; 
                 to_display{m,2} = MaxGFPList{Pos,2}; Numbers{Pos} = MaxGFPList{Pos,2};
-%                 Pos = Pos + 1;
                 clear Fig MaxGFPList;
             end
         end
@@ -497,28 +499,74 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
 
         % Matrix to integrate in the following uitable
         to_display = [AllNames',Numbers];
-
-        % Select folders on which to apply analyses
-        f = figure('Position', [125 125 400 400]);
-        p=uitable('Parent', f,'Data',to_display,'ColumnEdit',[false true],'ColumnName',...
-            {'Files', 'Peak GFP'},'ColumnWidth', {180,60},...
-        'CellEditCallBack','MaxGFPList = get(gco,''Data'');');
-        uicontrol('Style', 'text', 'Position', [20 325 250 50], 'String',...
-                {sprintf('Individual GFP peaks (in TF !) for component : %s',CompN{1}),...
-                'Close the box once you are settled with all files.'});
         
-        % Reminder
-        clc; % Clear command window
-        fprintf('<strong> Current component of interest: %s [%d - %d TF] </strong> \n',...
-            CompN{1},TEMPCompinTF(1),TEMPCompinTF(2))
+        
+        % If excel is installed (easier to copy-paste)
+        % see : https://ch.mathworks.com/matlabcentral/answers/631794-how-to-check-if-excel-is-installed
+        try
+            Excel = matlab.io.internal.getExcelInstance; % Would issue an ActiveX error if excel not installed
             
-        % Wait for p to close until running the rest of the script
-        waitfor(p); 
+            % Save a temporary excel file (first column is filenames)
+            xlswrite('TempFile.xlsx',to_display,CompN{1});
+
+            % Open excel
+            e=actxserver('excel.application');
+            eW=e.Workbooks;
+            eF=eW.Open([pwd '\TempFile.xlsx']); 
+            eS=eF.ActiveSheet;
+            e.visible = 1; % If you want Excel visible.
+
+            % Message box stoping code execution
+            MessageBox('The code will continue once you press OK','Wait for user input',30,250,70)
+
+            try % to avoid errors if the excel file was saved/closed before the message box
+                % edit sheet
+                eF.Save;
+                eF.Close; % close the file
+                e.Quit; % close Excel entirely
+            catch
+            end
+    
+            % Load the data and then delete the excel file
+            MaxGFPList = readcell([pwd '\TempFile.xlsx'],'sheet',CompN{1});
+            MaxGFPList = MaxGFPList(:,1:2); % Only keeping first 2 columns
+            delete([pwd '\TempFile.xlsx']);
+            
+            % Reminder
+            clc; % Clear command window
+            fprintf('<strong> Current component of interest: %s [%d - %d TF] </strong> \n',...
+                CompN{1},TEMPCompinTF(1),TEMPCompinTF(2))
+            
+            % Extract numbers
+            MaxGFPList = cell2mat(MaxGFPList(:,2));
         
-        % Convert from TF to ms (round to nearest integer)
-        MaxGFPList = cellfun(@(x) str2double(x),MaxGFPList(:,2));
+        % If excel is not installed
+        catch
+            
+            % Select folders on which to apply analyses
+            f = figure('Position', [125 125 400 400]);
+            p=uitable('Parent', f,'Data',to_display,'ColumnEdit',[false true],'ColumnName',...
+                {'Files', 'Peak GFP'},'ColumnWidth', {180,60},...
+            'CellEditCallBack','MaxGFPList = get(gco,''Data'');');
+            uicontrol('Style', 'text', 'Position', [20 325 250 50], 'String',...
+                    {sprintf('Individual GFP peaks (in TF !) for component : %s',CompN{1}),...
+                    'Close the box once you are settled with all files.'});
+                
+            % Reminder
+            clc; % Clear command window
+            fprintf('<strong> Current component of interest: %s [%d - %d TF] </strong> \n',...
+                CompN{1},TEMPCompinTF(1),TEMPCompinTF(2))
+
+            % Wait for p to close until running the rest of the script
+            waitfor(p); 
+            
+            % Change data type
+            MaxGFPList = cellfun(@(x) str2double(x),MaxGFPList(:,2));
+            
+        end
+        
+        % Identify numbers out of component's bounds
         OutOfBounds = AllNames(MaxGFPList<TEMPCompinTF(1) | MaxGFPList>TEMPCompinTF(2))';
-%         MaxGFPListMS = round(MaxGFPList/1024*1000 + Epoch(1));
         
         % Warning for files that are out of component's bounds  
         if ~isempty(OutOfBounds)

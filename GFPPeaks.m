@@ -98,13 +98,34 @@ end
 % Reshaping the design structure
 Design=[];
 Factors = [0 0];
-for k=1:size(DesignList,2)
+for k=1:2 % never more than 2 factors
     if strcmpi(DesignList{1,k},'W')
         Factors(1) = Factors(1) + 1;
         Design.Within.(sprintf('Factor%d',Factors(1))){k}=DesignList(~cellfun('isempty',DesignList(:,k)),k);
     elseif strcmpi(DesignList{1,k},'B')
         Factors(2) = Factors(2) + 1;
         Design.Between.(sprintf('Factor%d',Factors(2))){k}=DesignList(~cellfun('isempty',DesignList(:,k)),k);
+    end
+    
+    % Making sure that each levels are unique !!!
+    %i.e., not self-contained such as "Pain" vs "NoPain"
+    % It would mess with the "contains" function (line 244 XXX)
+    TempLevels = DesignList(3:end,k);
+    TempLevels = TempLevels(~cellfun('isempty',TempLevels));
+    AllComb = nchoosek(TempLevels,2); % Number of unique combinations
+    SelfCont = [false false]; % comparing them 2-by-2
+    for m=1:size(AllComb,1)
+        SelfCont(1) = contains(AllComb{m,1},AllComb{m,2}); % 2-in-1
+        SelfCont(2) = contains(AllComb{m,2},AllComb{m,1}); % 1-in-2
+        
+        % In case of self-containing levels
+        if any(SelfCont) 
+           Direction = fastif(SelfCont(1)==true, [AllComb{m,2} ' in ' AllComb{m,1}], ...
+           [AllComb{m,1} ' in ' AllComb{m,2}]);
+           error(['WARNING: the following levels are self-contained for factor "' DesignList{2,k} '":' ...
+               newline Direction, '.', newline ...
+               'You should make them UNIQUE identifiers otherwise the program will fail to load the files separately for each level.']) 
+        end
     end
 end
 
@@ -336,8 +357,9 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     Pos = []; Numbers = repmat({[]},[size(AllNames,2) 1]);
     
     % Remove empty lines and store data for the current component
-    EmptIdx = ~cellfun(@(x) isempty(x),CompList(n,:));
-    CompN = CompList(n,EmptIdx); 
+%     EmptIdx = ~cellfun(@(x) isempty(x),CompList(n,:));
+%     CompN = CompList(n,EmptIdx); 
+    CompN = CompList(n,:);
     
     % Component
     TEMPComp = cellfun(@(x) str2double(x),CompN(2:3)); % Load current Component bounds
@@ -353,7 +375,6 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         TEMPFields = fieldnames(EEGData);
         ElectClust = 1:size(EEGData.(TEMPFields{1}),2); % all electrodes
     end
-    
     
     for k=1:length(Fields) % For each levels
         for m=1:size(EEGData.(Fields{k}),3) % For each subject

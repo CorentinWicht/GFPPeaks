@@ -98,13 +98,34 @@ end
 % Reshaping the design structure
 Design=[];
 Factors = [0 0];
-for k=1:size(DesignList,2)
+for k=1:2 % never more than 2 factors
     if strcmpi(DesignList{1,k},'W')
         Factors(1) = Factors(1) + 1;
         Design.Within.(sprintf('Factor%d',Factors(1))){k}=DesignList(~cellfun('isempty',DesignList(:,k)),k);
     elseif strcmpi(DesignList{1,k},'B')
         Factors(2) = Factors(2) + 1;
         Design.Between.(sprintf('Factor%d',Factors(2))){k}=DesignList(~cellfun('isempty',DesignList(:,k)),k);
+    end
+    
+    % Making sure that each levels are unique !!!
+    %i.e., not self-contained such as "Pain" vs "NoPain"
+    % It would mess with the "contains" function (line 244 XXX)
+    TempLevels = DesignList(3:end,k);
+    TempLevels = TempLevels(~cellfun('isempty',TempLevels));
+    AllComb = nchoosek(TempLevels,2); % Number of unique combinations
+    SelfCont = [false false]; % comparing them 2-by-2
+    for m=1:size(AllComb,1)
+        SelfCont(1) = contains(AllComb{m,1},AllComb{m,2}); % 2-in-1
+        SelfCont(2) = contains(AllComb{m,2},AllComb{m,1}); % 1-in-2
+        
+        % In case of self-containing levels
+        if any(SelfCont) 
+           Direction = fastif(SelfCont(1)==true, [AllComb{m,2} ' in ' AllComb{m,1}], ...
+           [AllComb{m,1} ' in ' AllComb{m,2}]);
+           error(['the following factor levels are self-contained:' newline ...
+               Direction '.', newline ...
+               'You should make them unique identifi]) 
+        end
     end
 end
 
@@ -161,10 +182,13 @@ elseif strcmpi(PromptBlind,'Individual')
 %     % Message box stoping code execution
     MessageBox('The code will continue once you press OK','Wait for user input',30,250,70)
     
-    % edit sheet
-    eF.Save;
-    eF.Close; % close the file
-    e.Quit; % close Excel entirely
+    try % to avoid errors if the excel file was saved/closed before the message box
+        % edit sheet
+        eF.Save;
+        eF.Close; % close the file
+        e.Quit; % close Excel entirely
+    catch
+    end
     
     % Load the data and then delete the excel file
     Unblinding = readcell([pwd '\IndividualUnblinding.xlsx']);
@@ -333,8 +357,9 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     Pos = []; Numbers = repmat({[]},[size(AllNames,2) 1]);
     
     % Remove empty lines and store data for the current component
-    EmptIdx = ~cellfun(@(x) isempty(x),CompList(n,:));
-    CompN = CompList(n,EmptIdx); 
+%     EmptIdx = ~cellfun(@(x) isempty(x),CompList(n,:));
+%     CompN = CompList(n,EmptIdx); 
+    CompN = CompList(n,:);
     
     % Component
     TEMPComp = cellfun(@(x) str2double(x),CompN(2:3)); % Load current Component bounds
@@ -351,9 +376,8 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         ElectClust = 1:size(EEGData.(TEMPFields{1}),2); % all electrodes
     end
     
-    
-    for m=1:size(EEGData.(Fields{k}),3) % For each subject
-        for k=1:length(Fields) % For each levels
+    for k=1:length(Fields) % For each levels
+        for m=1:size(EEGData.(Fields{k}),3) % For each subject
             EEGTEMP = squeeze(EEGData.(Fields{k})(:,:,m));
             GFPData.(Fields{k})(:,m)=computegfp(EEGTEMP);
 
@@ -498,37 +522,72 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         to_display = [AllNames',Numbers];
         
         
-        % IF excel is installed (easier to copy-paste)
+        % If excel is installed (easier to copy-paste)
         % see : https://ch.mathworks.com/matlabcentral/answers/631794-how-to-check-if-excel-is-installed
         try
-            Excel = matlab.io.internal.getExcelInstance;
+            Excel = matlab.io.internal.getExcelInstance; % Would issue an ActiveX error if excel not installed
+            
+            % Save a temporary excel file (first column is filenames)
+            xlswrite('TempFile.xlsx',to_display,CompN{1});
+
+            % Open excel
+            e=actxserver('excel.application');
+            eW=e.Workbooks;
+            eF=eW.Open([pwd '\TempFile.xlsx']); 
+            eS=eF.ActiveSheet;
+            e.visible = 1; % If you want Excel visible.
+
+            % Message box stoping code execution
+            MessageBox('The code will continue once you press OK','Wait for user input',30,250,70)
+
+            try % to avoid errors if the excel file was saved/closed before the message box
+                % edit sheet
+                eF.Save;
+                eF.Close; % close the file
+                e.Quit; % close Excel entirely
+            catch
+            end
+    
+            % Load the data and then delete the excel file
+            MaxGFPList = readcell([pwd '\TempFile.xlsx'],'sheet',CompN{1});
+            MaxGFPList = MaxGFPList(:,1:2); % Only keeping first 2 columns
+            delete([pwd '\TempFile.xlsx']);
+            
+            % Reminder
+            clc; % Clear command window
+            fprintf('<strong> Current component of interest: %s [%d - %d TF] </strong> \n',...
+                CompN{1},TEMPCompinTF(1),TEMPCompinTF(2))
+            
+            % Extract numbers
+            MaxGFPList = cell2mat(MaxGFPList(:,2));
         
-        % If
+        % If excel is not installed
         catch
             
-        end
+            % Select folders on which to apply analyses
+            f = figure('Position', [125 125 400 400]);
+            p=uitable('Parent', f,'Data',to_display,'ColumnEdit',[false true],'ColumnName',...
+                {'Files', 'Peak GFP'},'ColumnWidth', {180,60},...
+            'CellEditCallBack','MaxGFPList = get(gco,''Data'');');
+            uicontrol('Style', 'text', 'Position', [20 325 250 50], 'String',...
+                    {sprintf('Individual GFP peaks (in TF !) for component : %s',CompN{1}),...
+                    'Close the box once you are settled with all files.'});
+                
+            % Reminder
+            clc; % Clear command window
+            fprintf('<strong> Current component of interest: %s [%d - %d TF] </strong> \n',...
+                CompN{1},TEMPCompinTF(1),TEMPCompinTF(2))
 
-        % Select folders on which to apply analyses
-        f = figure('Position', [125 125 400 400]);
-        p=uitable('Parent', f,'Data',to_display,'ColumnEdit',[false true],'ColumnName',...
-            {'Files', 'Peak GFP'},'ColumnWidth', {180,60},...
-        'CellEditCallBack','MaxGFPList = get(gco,''Data'');');
-        uicontrol('Style', 'text', 'Position', [20 325 250 50], 'String',...
-                {sprintf('Individual GFP peaks (in TF !) for component : %s',CompN{1}),...
-                'Close the box once you are settled with all files.'});
-        
-        % Reminder
-        clc; % Clear command window
-        fprintf('<strong> Current component of interest: %s [%d - %d TF] </strong> \n',...
-            CompN{1},TEMPCompinTF(1),TEMPCompinTF(2))
+            % Wait for p to close until running the rest of the script
+            waitfor(p); 
             
-        % Wait for p to close until running the rest of the script
-        waitfor(p); 
+            % Change data type
+            MaxGFPList = cellfun(@(x) str2double(x),MaxGFPList(:,2));
+            
+        end
         
-        % Convert from TF to ms (round to nearest integer)
-        MaxGFPList = cellfun(@(x) str2double(x),MaxGFPList(:,2));
+        % Identify numbers out of component's bounds
         OutOfBounds = AllNames(MaxGFPList<TEMPCompinTF(1) | MaxGFPList>TEMPCompinTF(2))';
-%         MaxGFPListMS = round(MaxGFPList/1024*1000 + Epoch(1));
         
         % Warning for files that are out of component's bounds  
         if ~isempty(OutOfBounds)

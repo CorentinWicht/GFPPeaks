@@ -237,6 +237,9 @@ for k=1:length(Fields) % For BS and/or WS category
         % NO UNBLINDING
         if strcmpi(PromptBlind,'No')
             Levels = Design.(Fields{k}).(Factors{j}){:}(3:end);
+            % Making sure Levels are valid struct. field names
+            StructLevels = regexprep(Levels, '[^a-zA-Z0-9]+', ''); % remove non-alphanumeric characters
+%             Levels = matlab.lang.makeValidName(Levels);
             for m=1:length(Levels) % For each level of the factor
                 LevelsFilesList = FileList(contains({FileList.name},Levels{m}));
                 for n=1:length(LevelsFilesList) % For each file
@@ -245,8 +248,8 @@ for k=1:length(Fields) % For BS and/or WS category
                     % https://sites.google.com/site/cartoolcommunity/files
                     Path = [LevelsFilesList(n).folder '\' LevelsFilesList(n).name];
                     [numchannels,numtimeframes,samplingrate,thedata]=openeph(Path);
-                    EEGData.(Levels{m})(:,:,n) = thedata; % Store in main database
-                    Names.(Levels{m})(n,1) = {LevelsFilesList(n).name};
+                    EEGData.(StructLevels{m})(:,:,n) = thedata; % Store in main database
+                    Names.(StructLevels{m})(n,1) = {LevelsFilesList(n).name};
                     disp(['File ' LevelsFilesList(n).name ' successfully loaded'])
                     
                     % For excel output
@@ -260,6 +263,7 @@ for k=1:length(Fields) % For BS and/or WS category
             if strcmpi(PromptBlind,'All')
                 OldLevels = Design.(Fields{k}).(Factors{j}){:}(3:end,1);
                 NewLevels = Design.(Fields{k}).(Factors{j}){:}(3:end,2);
+                NewLevels = regexprep(NewLevels, '[^a-zA-Z0-9]+', ''); 
                 for m=1:length(OldLevels) % For each level of the factor
                     LevelsFilesList = FileList(contains({FileList.name},OldLevels{m}));
                     for n=1:length(LevelsFilesList) % For each file
@@ -337,6 +341,7 @@ Ticks = 1:TickSpacing:Epoch(2)+abs(Epoch(1))+TickSpacing;
 % Taken from "Matlabroutinesforcartoolers" functions 
 % https://sites.google.com/site/cartoolcommunity/files
 Fields = fieldnames(EEGData); 
+MaxIndivGFP = struct();
 
 % Create a .txt file for outputs
 date_name = datestr(now,'dd-mm-yy_HHMM');
@@ -486,7 +491,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
                     {'Files', 'Peak GFP (in TF)'},'ColumnWidth', {180,100},'Position',[10 20 350 300],...
                 'CellEditCallBack','MaxGFPList = get(gco,''Data'');');
                 uicontrol('Style', 'text', 'Position', [80 325 200 50], 'String',...
-                        {'Individual GFP peaks','Close the box once you are settled with current file.'});
+                        {'Individual GFP peaks','Close the box once you are safisfied with current file.'});
                 
                 % If no modifications to the table
                 if ~exist('MaxGFPList','var')
@@ -520,7 +525,6 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
 
         % Matrix to integrate in the following uitable
         to_display = [AllNames',Numbers];
-        
         
         % If excel is installed (easier to copy-paste)
         % see : https://ch.mathworks.com/matlabcentral/answers/631794-how-to-check-if-excel-is-installed
@@ -596,15 +600,39 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         end        
         
         % Build structure by levels
-        for k=1:length(Fields) 
-            MaxGFPStructTF.(Fields{k}) = MaxGFPList(contains(Unblinding(:,2),Fields{k}));
+        % THIS WON'T WORK WITH MORE THAN 1 FACTOR!!!!
+        for k=1:length(Levels) 
+            MaxGFPStructTF.(Fields{k}) = MaxGFPList(contains(Unblinding(:,2),Levels{k}));
         end
         
-        % Compute mean GFP for each level
+        %1) GFP
+        % Compute mean GFP Peak TF for each level separately                 
         MeanPeakGFP = structfun(@(x) mean(x),MaxGFPStructTF,'UniformOutput',0);
 
-        % Compute SD over individual GFP for each level
+        % Compute SD over individual GFP peak TF for each level
         SDPeakGFP = structfun(@(x) std(x),MaxGFPStructTF,'UniformOutput',0);
+        
+        %2) GMD (currently only compute when 2 levels)
+        if length(Fields)==2
+            % Compute mean GFP Peak TF across all levels
+            PeakTFGMD.Mean = mean(cell2mat(struct2cell(MaxGFPStructTF)));
+            % Compute SD over individual GFP peak TF across all levels
+            PeakTFGMD.SD = std(cell2mat(struct2cell(MaxGFPStructTF)));
+            
+            % Compute Global Map Dissimilarity (GMD) & Spatial Correlation
+            LowGMD = round(PeakTFGMD.Mean - PeakTFGMD.SD);
+            HighGMD = round(PeakTFGMD.Mean + PeakTFGMD.SD);
+            GMDData.(Fields{1}) = squeeze(mean(EEGData.(Fields{1})(LowGMD:HighGMD,:,:),3)); 
+            GMDData.(Fields{2}) = squeeze(mean(EEGData.(Fields{2})(LowGMD:HighGMD,:,:),3));
+            [GMD,SpatialCorr]=computedissandsc(GMDData.(Fields{1}),GMDData.(Fields{2}));
+            
+            % Saving EEG data used for GMD computation
+            mkdir([OutputPath '\' OutputFolder '\GMDData'])
+            for t=1:length(Fields)
+                dlmwrite([OutputPath '\' OutputFolder '\GMDData\EEGData_' Fields{t} '_' date_name '.dat'],...
+                    GMDData.(Fields{t}),'delimiter',',','precision',15)
+            end
+        end
         
     % Loading previous analyses
     elseif strcmpi(Method,'Load')
@@ -632,10 +660,10 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     MaxValGFP = max(cell2mat(struct2cell(MeanGFP)));
     
     % Min & Max GFP value across levels
-    MinValVolt = min(cell2mat(struct2cell(...
-        structfun(@(x) mean(x(:,ElectClust,:),[2,3]), EEGData, 'UniformOutput', 0))));
-    MaxValVolt = max(cell2mat(struct2cell(...
-        structfun(@(x) mean(x(:,ElectClust,:),[2,3]), EEGData, 'UniformOutput', 0))));
+    MinValVolt = min(min(cell2mat(struct2cell(...
+        structfun(@(x) squeeze(mean(x(:,ElectClust,:),3)), EEGData, 'UniformOutput', 0)))));
+    MaxValVolt = max(max(cell2mat(struct2cell(...
+        structfun(@(x) squeeze(mean(x(:,ElectClust,:),3)), EEGData, 'UniformOutput', 0)))));
     
     % For .txt output
     fprintf(fid,'\r\n%s\r\n',['----' CompN{1} ' COMPONENT [' ...
@@ -657,6 +685,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         PlotDat = squeeze(mean(EEGData.(Fields{m})(:,ElectClust,:),[2,3]));
         plot(PlotDat,'Color','k');axis tight;
         xlabel('Time (ms)'), ylabel('Mean Voltage Amplitude [\muV]')
+        title(sprintf('%s',strrep(Fields{m},'_','-'))) 
         set(gca,'XTick',Ticks,'XTickLabel',num2cell(XTStr),'ylim',[MinValVolt MaxValVolt]);
         
         % Vertical line (Peak)
@@ -677,7 +706,6 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         subplot(3,length(Fields),m+length(Fields))
         plot(MeanGFP.(Fields{m}),'Color','k');axis tight;
         xlabel('Time (ms)'), ylabel('Mean GFP')
-        title(sprintf('%s',strrep(Fields{m},'_','-'))) 
         set(gca,'XTick',Ticks,'XTickLabel',num2cell(XTStr),'ylim',[MinValGFP MaxValGFP]);
         
         % Vertical line (Peak)
@@ -729,15 +757,30 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     
     % Saving .mat file with results
     save([OutputPath '\' OutputFolder '\GFPResults_' CompN{1} '_' Method '_' date_name '.mat'],'MaxGFP',...
-        'MeanPeakGFP','MeanGFP','SDPeakGFP','MaxGFPList')
+        'MeanPeakGFP','MeanGFP','SDPeakGFP','MaxGFPList','GMD','SpatialCorr')
     
-    % Save in outputs in table and export to .xlsx file
+    % Save outputs in table and export to .xlsx file
+    % 1) GFP
     MaxGFPms = MaxGFPList/(SamplingRate/1000)+Epoch(1);
     TabOut = array2table([Unblinding num2cell([MaxGFPList MaxGFPms MaxGFP.MeanRange' MaxGFP.SDRange' ...
         MaxVolt.MeanRange' MaxVolt.SDRange'])]);
     TabOut.Properties.VariableNames = {'Files','Levels','MaxGFPTF','MaxGFPms',...
         'IndivGFPMeanOverPOI','IndivGFPSDOverPOI','IndivVoltageMeanOverPOIClust','IndivVoltageSDOverPOIClust'};
     writetable(TabOut,[OutputPath '\' OutputFolder '\GFPResults' '_' Method '_' date_name '.xlsx'],'Sheet',CompN{1})
+    
+    % 2) GMD
+    if length(Fields) == 2
+        Contrasts = nchoosek(Fields,2);
+        for t=1:size(Contrasts,1)
+            ContrastsOut{t} = [sprintf('C%d: ',t) Contrasts{t,1} '_Vs_' Contrasts{t,2}];
+        end
+        Header = [repmat(ContrastsOut,[1,2]);repmat({'GMD' 'SpatialCorrelation'},[1,length(ContrastsOut)])];
+        Header = [{'CONTRASTS'; 'TF'} Header];
+        TabOut = array2table([Header;num2cell(LowGMD:HighGMD)' num2cell(GMD) num2cell(SpatialCorr)]);
+%         TabOut.Properties.VariableNames = {'Files','Levels','MaxGFPTF','MaxGFPms',...
+%             'IndivGFPMeanOverPOI','IndivGFPSDOverPOI','IndivVoltageMeanOverPOIClust','IndivVoltageSDOverPOIClust'};
+        writetable(TabOut,[OutputPath '\' OutputFolder '\GMDResults' '_' Method '_' date_name '.xlsx'],'Sheet',CompN{1})
+    end
     
     % Save figure 
     FigName = [OutputPath '\' OutputFolder '\GFPPeak_' CompN{1} '_' Method '_' date_name '.png'];

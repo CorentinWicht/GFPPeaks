@@ -612,28 +612,6 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         % Compute SD over individual GFP peak TF for each level
         SDPeakGFP = structfun(@(x) std(x),MaxGFPStructTF,'UniformOutput',0);
         
-        %2) GMD (currently only compute when 2 levels)
-        if length(Fields)==2
-            % Compute mean GFP Peak TF across all levels
-            PeakTFGMD.Mean = mean(cell2mat(struct2cell(MaxGFPStructTF)));
-            % Compute SD over individual GFP peak TF across all levels
-            PeakTFGMD.SD = std(cell2mat(struct2cell(MaxGFPStructTF)));
-            
-            % Compute Global Map Dissimilarity (GMD) & Spatial Correlation
-            LowGMD = round(PeakTFGMD.Mean - PeakTFGMD.SD);
-            HighGMD = round(PeakTFGMD.Mean + PeakTFGMD.SD);
-            GMDData.(Fields{1}) = squeeze(mean(EEGData.(Fields{1})(LowGMD:HighGMD,:,:),3)); 
-            GMDData.(Fields{2}) = squeeze(mean(EEGData.(Fields{2})(LowGMD:HighGMD,:,:),3));
-            [GMD,SpatialCorr]=computedissandsc(GMDData.(Fields{1}),GMDData.(Fields{2}));
-            
-            % Saving EEG data used for GMD computation
-            mkdir([OutputPath '\' OutputFolder '\GMDData'])
-            for t=1:length(Fields)
-                dlmwrite([OutputPath '\' OutputFolder '\GMDData\EEGData_' Fields{t} '_' date_name '.dat'],...
-                    GMDData.(Fields{t}),'delimiter',',','precision',15)
-            end
-        end
-        
     % Loading previous analyses
     elseif strcmpi(Method,'Load')
         
@@ -642,6 +620,28 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         VarLoad = {'MeanPeakGFP','MeanGFP','SDPeakGFP','MaxGFPList'};
         load([Path File],VarLoad{:})
     end
+    
+%     %2) GMD (currently only compute when 2 levels)
+%     if length(Fields)==2
+%         % Compute mean GFP Peak TF across all levels
+%         PeakTFGMD.Mean = mean(cell2mat(struct2cell(MaxGFPStructTF)));
+%         % Compute SD over individual GFP peak TF across all levels
+%         PeakTFGMD.SD = std(cell2mat(struct2cell(MaxGFPStructTF)));
+% 
+%         % Compute Global Map Dissimilarity (GMD) & Spatial Correlation
+%         LowGMD = round(PeakTFGMD.Mean - PeakTFGMD.SD);
+%         HighGMD = round(PeakTFGMD.Mean + PeakTFGMD.SD);
+%         GMDData.(Fields{1}) = squeeze(mean(EEGData.(Fields{1})(LowGMD:HighGMD,:,:),3)); 
+%         GMDData.(Fields{2}) = squeeze(mean(EEGData.(Fields{2})(LowGMD:HighGMD,:,:),3));
+%         [GMD,SpatialCorr]=computedissandsc(GMDData.(Fields{1}),GMDData.(Fields{2}));
+% 
+%         % Saving EEG data used for GMD computation
+%         mkdir([OutputPath '\' OutputFolder '\GMDData'])
+%         for t=1:length(Fields)
+%             dlmwrite([OutputPath '\' OutputFolder '\GMDData\EEGData_' Fields{t} '_' date_name '.dat'],...
+%                 GMDData.(Fields{t}),'delimiter',',','precision',15)
+%         end
+%     end
 
     %% PEAK IDENTIFICATION ON MEAN GFP
     Fig = figure('units','normalized','outerposition',[0 0 1 1]); % Initialize figure in full screen

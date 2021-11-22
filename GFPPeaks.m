@@ -605,12 +605,22 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
             MaxGFPStructTF.(Fields{k}) = MaxGFPList(contains(Unblinding(:,2),Levels{k}));
         end
         
-        %1) GFP
-        % Compute mean GFP Peak TF for each level separately                 
+        % GFP
+        % 1) Compute mean GFP Peak TF for...
+        % 1.1) ALL
+        TEMP = cell2mat(struct2cell(MaxGFPStructTF));
+        PeakGFPAll.Mean = mean(TEMP);
+        
+        % 2.1) Each level separately                 
         MeanPeakGFP = structfun(@(x) mean(x),MaxGFPStructTF,'UniformOutput',0);
 
-        % Compute SD over individual GFP peak TF for each level
+        % 2) Compute SD over individual GFP peak TF for each level
+        % 2.1) ALL
+        PeakGFPAll.SD = std(TEMP);
+        
+        % 2.1) Each level separately     
         SDPeakGFP = structfun(@(x) std(x),MaxGFPStructTF,'UniformOutput',0);
+       
         
     % Loading previous analyses
     elseif strcmpi(Method,'Load')
@@ -620,28 +630,6 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         VarLoad = {'MeanPeakGFP','MeanGFP','SDPeakGFP','MaxGFPList'};
         load([Path File],VarLoad{:})
     end
-    
-%     %2) GMD (currently only compute when 2 levels)
-%     if length(Fields)==2
-%         % Compute mean GFP Peak TF across all levels
-%         PeakTFGMD.Mean = mean(cell2mat(struct2cell(MaxGFPStructTF)));
-%         % Compute SD over individual GFP peak TF across all levels
-%         PeakTFGMD.SD = std(cell2mat(struct2cell(MaxGFPStructTF)));
-% 
-%         % Compute Global Map Dissimilarity (GMD) & Spatial Correlation
-%         LowGMD = round(PeakTFGMD.Mean - PeakTFGMD.SD);
-%         HighGMD = round(PeakTFGMD.Mean + PeakTFGMD.SD);
-%         GMDData.(Fields{1}) = squeeze(mean(EEGData.(Fields{1})(LowGMD:HighGMD,:,:),3)); 
-%         GMDData.(Fields{2}) = squeeze(mean(EEGData.(Fields{2})(LowGMD:HighGMD,:,:),3));
-%         [GMD,SpatialCorr]=computedissandsc(GMDData.(Fields{1}),GMDData.(Fields{2}));
-% 
-%         % Saving EEG data used for GMD computation
-%         mkdir([OutputPath '\' OutputFolder '\GMDData'])
-%         for t=1:length(Fields)
-%             dlmwrite([OutputPath '\' OutputFolder '\GMDData\EEGData_' Fields{t} '_' date_name '.dat'],...
-%                 GMDData.(Fields{t}),'delimiter',',','precision',15)
-%         end
-%     end
 
     %% PEAK IDENTIFICATION ON MEAN GFP
     Fig = figure('units','normalized','outerposition',[0 0 1 1]); % Initialize figure in full screen
@@ -668,8 +656,6 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     % For .txt output
     fprintf(fid,'\r\n%s\r\n',['----' CompN{1} ' COMPONENT [' ...
         num2str(TEMPCompinTF(1)) '-'  num2str(TEMPCompinTF(2)) ' TF]'  '----']);
-%     fprintf(fid2,'\r\n%s\r\n',['----' CompN{1} ' COMPONENT [' ...
-%         num2str(TEMPCompinTF(1)) '-'  num2str(TEMPCompinTF(2)) ' TF]'  '----']);
     
     for m=1:length(Fields) % For each level
         
@@ -723,7 +709,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         Low = round(MaxGFP.(Fields{m}).Pos - SDPeakGFP.(Fields{m}));
         High = round(MaxGFP.(Fields{m}).Pos + SDPeakGFP.(Fields{m}));
         topoplotIndie(mean(EEGTEMP(Low:High,:),1),Chanlocs);
-        title(sprintf('Averaged topography between %d and %d TF',Low,High));
+        title(sprintf('Topography averaged between %d and %d TF',Low,High));
         caxis([MinValVolt MaxValVolt]) % Same colorbar limits for all graphs
         colorbar
         
@@ -733,12 +719,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         fprintf(fid,'%s\r\n',['Group-/Condition-averaged max GFP (in TF) = ' num2str(MaxGFP.(Fields{m}).Pos)]);
         
         %% Retrieving individual GFP averaged over the POI identified above
-        % Write in the .txt output
-%         fprintf(fid2,'\r\n%s\r\n',['individual GFP averaged over the POI: ' ...
-%             num2str(MaxGFP.(Fields{m}).Pos) ' ' num2str(SDPeakGFP.(Fields{m})) ...
-%             ' (mean +- 1SD)']);
-%         fprintf(fid2,'\r\n%s\r\n',sprintf('LEVEL %d: %s',m,Fields{m}));
-        
+       
         % Compute individual average GFP over the POI (+- 1 SD)
         MaxGFP.MeanRange = [MaxGFP.MeanRange mean(GFPData.(Fields{m})(Low:High,:))];
         MaxGFP.SDRange = [MaxGFP.SDRange std(GFPData.(Fields{m})(Low:High,:))];    
@@ -749,18 +730,19 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         MaxVolt.MeanRange = [MaxVolt.MeanRange mean(TEMPDat)];
         MaxVolt.SDRange = [MaxVolt.SDRange std(TEMPDat)];
         
-        % Fill in the .txt output
-%         ToSave = [AllNames;num2cell(MaxGFP.MeanRange);num2cell(MaxGFP.SDRange)]';
-%         for j=1:length(ToSave);fprintf(fid2,'%s - %.4f %.4f\r\n',ToSave{j,1},ToSave{j,2}, ToSave{j,3});end
-%         fprintf(fid2,'\r\n');
     end
     
+    % Save overall results in .txt file 
+    fprintf(fid,'\r\n%s\r\n','OVERALL');
+    fprintf(fid,'%s\r\n',['Individual GFP standard deviation (in TF) = ' num2str(PeakGFPAll.SD)]);
+    fprintf(fid,'%s\r\n',['Group-/Condition-averaged max GFP (in TF) = ' num2str(PeakGFPAll.Mean)]);
+            
     % Saving .mat file with results
     save([OutputPath '\' OutputFolder '\GFPResults_' CompN{1} '_' Method '_' date_name '.mat'],'MaxGFP',...
-        'MeanPeakGFP','MeanGFP','SDPeakGFP','MaxGFPList','GMD','SpatialCorr')
+        'MeanPeakGFP','MeanGFP','SDPeakGFP','MaxGFPList')
     
     % Save outputs in table and export to .xlsx file
-    % 1) GFP
+    % GFP
     MaxGFPms = MaxGFPList/(SamplingRate/1000)+Epoch(1);
     TabOut = array2table([Unblinding num2cell([MaxGFPList MaxGFPms MaxGFP.MeanRange' MaxGFP.SDRange' ...
         MaxVolt.MeanRange' MaxVolt.SDRange'])]);
@@ -768,33 +750,13 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
         'IndivGFPMeanOverPOI','IndivGFPSDOverPOI','IndivVoltageMeanOverPOIClust','IndivVoltageSDOverPOIClust'};
     writetable(TabOut,[OutputPath '\' OutputFolder '\GFPResults' '_' Method '_' date_name '.xlsx'],'Sheet',CompN{1})
     
-    % 2) GMD
-    if length(Fields) == 2
-        Contrasts = nchoosek(Fields,2);
-        for t=1:size(Contrasts,1)
-            ContrastsOut{t} = [sprintf('C%d: ',t) Contrasts{t,1} '_Vs_' Contrasts{t,2}];
-        end
-        Header = [repmat(ContrastsOut,[1,2]);repmat({'GMD' 'SpatialCorrelation'},[1,length(ContrastsOut)])];
-        Header = [{'CONTRASTS'; 'TF'} Header];
-        TabOut = array2table([Header;num2cell(LowGMD:HighGMD)' num2cell(GMD) num2cell(SpatialCorr)]);
-%         TabOut.Properties.VariableNames = {'Files','Levels','MaxGFPTF','MaxGFPms',...
-%             'IndivGFPMeanOverPOI','IndivGFPSDOverPOI','IndivVoltageMeanOverPOIClust','IndivVoltageSDOverPOIClust'};
-        writetable(TabOut,[OutputPath '\' OutputFolder '\GMDResults' '_' Method '_' date_name '.xlsx'],'Sheet',CompN{1})
-    end
-    
     % Save figure 
     FigName = [OutputPath '\' OutputFolder '\GFPPeak_' CompN{1} '_' Method '_' date_name '.png'];
     fprintf(fid,'\r\n%s\r\n',['Related figure name: ' FigName]);
     saveas(Fig,FigName); close gcf; clear Fig;    
     
-%     % Saving files and their respective component's peak GFP (in TF)
-%     fprintf(fid,'\r\n%s\r\n','Filesnames and their respective component peak GFP (in TF)');
-%     ToSave = [AllNames' num2cell(MaxGFPList)];
-%     for j=1:length(ToSave);fprintf(fid,'%s - %d\r\n',ToSave{j,1},ToSave{j,2});end
-%     fprintf(fid,'\r\n');
      clear MaxGFPList;
 end
 
 % Close txt file
 fclose(fid);
-% fclose(fid2);

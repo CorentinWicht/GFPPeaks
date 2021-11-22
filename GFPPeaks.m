@@ -337,6 +337,19 @@ XTStr = Epoch(1):50:Epoch(2);
 TickSpacing = 50*(SamplingRate/1000); % Needs to be adjusted based on sampling rate
 Ticks = 1:TickSpacing:Epoch(2)+abs(Epoch(1))+TickSpacing;
 
+% Image exporting format
+FormatList = [{'JPG - Joint Photographic Experts Group'}, {'PNG - Portable Network Graphics'}, ...
+ {'TIFF - Tagged Image File Format'}, {'PDF - Portable Document Format (vector)'}, ...
+ {'EMF - Enhanced Metafile for Windows® systems only (vector)'}, {'EPS - Encapsulated PostScript® (vector)'}];
+Idx = listdlg('PromptString', 'Select file formats to save pictures:', ...
+ 'ListSize', [250 200], 'SelectionMode', 'single', 'ListString', FormatList);
+Extension = strsplit(FormatList{Idx},' - ');
+Extension = ['.' lower(Extension{1})];
+ContentType = 'vector';
+if strcmp(Extension,'.jpg') || strcmp(Extension,'.png') || strcmp(Extension,'.tiff')
+    ContentType = 'image';
+end
+
 %% COMPUTE GFP
 % Taken from "Matlabroutinesforcartoolers" functions 
 % https://sites.google.com/site/cartoolcommunity/files
@@ -739,7 +752,7 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
             
     % Saving .mat file with results
     save([OutputPath '\' OutputFolder '\GFPResults_' CompN{1} '_' Method '_' date_name '.mat'],'MaxGFP',...
-        'MeanPeakGFP','MeanGFP','SDPeakGFP','MaxGFPList')
+        'MeanPeakGFP','MeanGFP','SDPeakGFP','MaxGFPList','PeakGFPAll')
     
     % Save outputs in table and export to .xlsx file
     % GFP
@@ -751,9 +764,11 @@ for n=1:sum(~cellfun(@(x) isempty(x), CompList(:,1))) % For each Comp
     writetable(TabOut,[OutputPath '\' OutputFolder '\GFPResults' '_' Method '_' date_name '.xlsx'],'Sheet',CompN{1})
     
     % Save figure 
-    FigName = [OutputPath '\' OutputFolder '\GFPPeak_' CompN{1} '_' Method '_' date_name '.png'];
+    FigName = [OutputPath '\' OutputFolder '\GFPPeak_' CompN{1} '_' Method '_' date_name Extension];
     fprintf(fid,'\r\n%s\r\n',['Related figure name: ' FigName]);
-    saveas(Fig,FigName); close gcf; clear Fig;    
+%     saveas(Fig,FigName); 
+    exportgraphics(Fig,FigName,'ContentType',ContentType)
+    close gcf; clear Fig;    
     
      clear MaxGFPList;
 end

@@ -24,10 +24,11 @@ C.A. Wicht, GFPPeaks, (2020), GitHub repository, https://github.com/CorentinWich
     + [6. Include Files](#6-include-files)
     + [7. ERP Parameters](#7-erp-parameters)
     + [8. ERP Components Definition](#8-erp-components-definition)
-    + [9. GFPPeaks Windows](#9-gfppeaks-windows)
-      - [9.1 Main Window](#91-main-window)
-      - [9.2 Data Table](#92-data-table)
-    + [10. Exported Figure](#10-exported-figure)
+    + [9. Figure graphics format](#9-figure-graphics-format)
+    + [9. GFPPeaks Windows](#10-gfppeaks-windows)
+      - [10.1 Main Window](#101-main-window)
+      - [10.2 Data Table](#102-data-table)
+    + [11. Exported Figure](#11-exported-figure)
   * [Author](#author)
   * [License](#license)
   * [Acknowledgements](#acknowledgements)
@@ -56,8 +57,8 @@ Then, you can choose between a :
 1) semi-automated 
 2) manual processing modes 
 3) or loading previous data \
-The semi-automated method looks for the GFP peak inside each component's upper and lower bounds as defined in [Chapter 8](#8-erp-components-definition), *see* [Chapter 9.1](#91-main-window) *for an example of the main GFP Peaks window.* \
-The manual method requires you to enter manually the GFP peaks for each files (identified for e.g. with CARTOOL) in the table detailed in [Chapter 9.2](#92-data-table). 
+The semi-automated method looks for the GFP peak inside each component's upper and lower bounds as defined in [Chapter 8](#8-erp-components-definition), *see* [Chapter 10.1](#101-main-window) *for an example of the main GFP Peaks window.* \
+The manual method requires you to enter manually the GFP peaks for each files (identified for e.g. with CARTOOL) in the table detailed in [Chapter 10.2](#102-data-table). 
 Loading data will require you to have ran the script previously to get the following .mat file(s):
 
 ![](tools/screenshots/LoadMAT.png)
@@ -164,15 +165,21 @@ Column 4: determine the channel number which needs to be visually higlighted (ma
 Column 5: determine if subset of electrodes need to be cluster to compute the average voltage amplitude (empty = all electrodes)
 ```
 
-These informations will be used in the GFP peaks main display in [Chapter 9.1](#91-main-window)
+These informations will be used in the GFP peaks main display in [Chapter 10.1](#101-main-window)
+
+### 9. Figure graphics format
+
+![](tools/screenshots/FigureFormat.png)
+
+Finally, you have the possibility to define which file format you would like to export the figures (i.e., PDF, EMF and EPS are vector graphics format).
 
 
-### 9. GFPPeaks Windows
-#### 9.1 Main Window
+### 10. GFPPeaks Windows
+#### 10.1 Main Window
 
 ![](tools/screenshots/MainWindow.png)
 
-This is the main window which will enable you to determine whether the preselected GFP peak in the data table (*see* [Chapter 9.2](#92-data-table)) is correct. \
+This is the main window which will enable you to determine whether the preselected GFP peak in the data table (*see* [Chapter 10.2](#102-data-table)) is correct. \
 The window displays *from left to right, top to bottom*:
 ```
 1) The ERP including all channels (each channel is represented as one line and electrodes selected for visualisation are highlighted in colors) [top left].
@@ -187,11 +194,11 @@ On the far right you will find the topography at the GFP peak (indicated in TF i
 You have the possibility to use the slide bar below to inspect the topography of the whole ERP period while this will also adjust the vertical line in all other graphs.
 
 
-#### 9.2 Data Table
+#### 10.2 Data Table
 
 ![](tools/screenshots/GFPPeakData.png)
 
-This table will popup next the main figure from [Chapter 9.1](#91-main-window). \
+This table will popup next the main figure from [Chapter 10.1](#101-main-window). \
 **⚠️ DO NOT CLOSE THIS TABLE BEFORE YOU ARE FINISHED WITH THE CURRENT FILE ⚠️**.
 
 The GFP peak for the current file will be prefilled if you selected the semi-automatic method while the table will be completely empty if you selected the manual method (*see* [Chapter 2](#2-loading-files)).
@@ -200,7 +207,7 @@ For the semi-automatic method, either you leave the prefilled value if you think
 
 **Once you are satisfied with your results you can close the data table and the results will be saved**.
 
-### 10. Exported Figure
+### 11. Exported Figure
 
 ![](tools/screenshots/Results.png)
 

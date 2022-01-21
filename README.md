@@ -25,7 +25,7 @@ C.A. Wicht, GFPPeaks, (2020), GitHub repository, https://github.com/CorentinWich
     + [7. ERP Parameters](#7-erp-parameters)
     + [8. ERP Components Definition](#8-erp-components-definition)
     + [9. Figure graphics format](#9-figure-graphics-format)
-    + [9. GFPPeaks Windows](#10-gfppeaks-windows)
+    + [10. GFPPeaks Windows](#10-gfppeaks-windows)
       - [10.1 Main Window](#101-main-window)
       - [10.2 Data Table](#102-data-table)
     + [11. Exported Figure](#11-exported-figure)
